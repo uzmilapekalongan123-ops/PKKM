@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi PKKM Multi-Tahun - MTs Al Fatah Talun (Revisi Lengkap Drive)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            50: '#f0fdf4', 100: '#dcfce7', 500: '#10b981', 600: '#059669',
+                            700: '#047857', 800: '#065f46', 900: '#064e3b', 950: '#022c22'
+                        },
+                        amber: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // Link Folder Google Drive Utama Fallback
+        const DRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/19UbExsxbEX7_iO6yAbyjywHtqepebnuF?usp=sharing";
+
+        // DATA INSTRUMEN LENGKAP A, B, C, D, E DENGAN LINK DRIVE SPESIFIK
+        const baseInstruments = [
+            // ==================== UNSUR A ====================
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.1 Mengembangkan madrasah sesuai dengan kebutuhan.",
+                "indikator": "Mampu mengembangkan struktur organisasi yang sesuai dengan kebutuhan program.",
+                "diharapkan": "Dokumen struktur madrasah",
+                "bukti": "Melalui observasi dan studi dokumen:\n(1) bagan/struktur organisasi;\n(2) notulen rapat yang berisi keputusan tentang penyusunan struktur organisasi;\n(3) dokumen sosialisasi; dan\n(4) Daftar Hadir",
+                "driveLink": "https://drive.google.com/drive/folders/1QDAITCscgeD9MJv3c1-2GVbE-8NPSShB?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.1 Mengembangkan madrasah sesuai dengan kebutuhan.",
+                "indikator": "Mampu menempatkan personalia yang sesuai dengan kebutuhan",
+                "diharapkan": "Dokumen uraian tugas personalia di madrasah",
+                "bukti": "Melalui studi dokumen:\n(1) dokumen penetapan/pengesahan susunan organisasi madrasah;\n(2) rincian tugas setiap personil pada struktur organisasi madrasah;\n(3) SOP Personalia; dan\n(4) Sertifikat",
+                "driveLink": "https://drive.google.com/drive/folders/1n4rcB6yNnUdUu21dQxTM_-5oJNTQMlpK?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.1 Mengembangkan madrasah sesuai dengan kebutuhan.",
+                "indikator": "Mampu mengembangkan pedoman dan prosedur kerja organisasi madrasah",
+                "diharapkan": "Pedoman dan prosedur kerja organisasi madrasah",
+                "bukti": "Melalui observasi dokumen:\n1) SOP pengangkatan Kepala,\n2) SOP pengangkatan PTK,\n3) SOP Keuangan,\n4) SOP Komite",
+                "driveLink": "https://drive.google.com/drive/folders/1DuZ5tChxzOIR4o2s0S9qp_qiHHo6x-Gk?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.2 Mengelola perubahan dan pengembangan madrasah menuju organisasi pembelajar yang efektif.",
+                "indikator": "Mampu mengembangkan program baru untuk meningkatkan pencapaian target yang lebih tinggi.",
+                "diharapkan": "Program pengembangan madrasah mengandung target pencapaian pada indikator keunggulan khas satuan pendidikan, kerja sama tim, dan data realisasi target yang meningkat daripada pencapaian sebelumnya.",
+                "bukti": "Melalui studi dokumen:\n(1) visi dan Misi madrasah;\n(2) data prestasi madrasah;\n(3) data hasil Ujian 3 tahun terakhir;\n(4) Data Alumni",
+                "driveLink": "https://drive.google.com/drive/folders/1l1wSRoBg9IM6u9Y7IZP_qUc1dUIeMH1r?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.2 Mengelola perubahan dan pengembangan madrasah menuju organisasi pembelajar yang efektif.",
+                "indikator": "Mampu dan terampil dalam membangun tim kerja yang efektif untuk mendapatkan produk kinerja yang lebih unggul.",
+                "diharapkan": "Terdapat struktur organisasi yang dilengkapi dengan distribusi dan deskripsi pembagian tugas",
+                "bukti": "Melalui observasi dan studi dokumen:\n(1) bagan/struktur organisasi;\n(2) SK pembagian tugas;\n(3) Proker Kepala;\n(4) RKM/RKT/RAPBM",
+                "driveLink": "https://drive.google.com/drive/folders/1pjHq6Dl7Hzw2WMwlZWVk20JaqPl7Qk2V?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.2 Mengelola perubahan dan pengembangan madrasah menuju organisasi pembelajar yang efektif.",
+                "indikator": "Mampu menerapkan berbagai teknik pembaharuan dalam pengelolaan pembelajaran.",
+                "diharapkan": "Terdapat penerapan strategi pembaharuan dengan strategi yang terprogram",
+                "bukti": "Melalui studi dokumen:\n(1) KTSP / KOSM;\n(2) kalender pendidikan dan analisis;\n(3) perangkat pembelajaran;\n(4) peraturan akademik",
+                "driveLink": "https://drive.google.com/drive/folders/13H8XOnsBWpWdQP9tc1PpFKQl05ch2Zui?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.2 Mengelola perubahan dan pengembangan madrasah menuju organisasi pembelajar yang efektif.",
+                "indikator": "Mampu mengembangkan potensi dan meningkatkan prestasi madrasah",
+                "diharapkan": "Dokumen bukti perkembangan potensi dan prestasi peserta didik, yang meningkat dari waktu ke waktu.",
+                "bukti": "Melalui studi dokumen:\n(1) data prestasi madrasah 1 tahun terakhir;\n(2) data hasil Ujian/AKMI 1 tahun terakhir;\n(3) Dokumen Akreditasi; dan\n(4) Program Ekstrakurikuler",
+                "driveLink": "https://drive.google.com/drive/folders/1w4RTdjFA3uuAohduIy0pTz-ypWdeF84I?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.3 Mengelola hubungan antara madrasah dan masyarakat dalam rangka pencarian dukungan ide, sumber belajar, dan pembiayaan.",
+                "indikator": "Merencanakan kerjasama dengan lembaga pemerintah, swasta dan masyarakat",
+                "diharapkan": "Data kerjasama dengan lembaga pemerintah, swasta, dan masyarakat",
+                "bukti": "Melalui studi dokumen:\n(1) SK komite madrasah;\n(2) AD/ART komite madrasah;\n(3) program kerja komite madrasah;\n(4) dokumen kerja sama (MoU).",
+                "driveLink": "https://drive.google.com/drive/folders/1MF-M2BiBdXynZ4fEneVjeUfAnOD62l3P?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.3 Mengelola hubungan antara madrasah dan masyarakat dalam rangka pencarian dukungan ide, sumber belajar, dan pembiayaan.",
+                "indikator": "Melakukan pendekatan-pendekatan dalam rangka mendapatkan dukungan dari lembaga pemerintah, swasta dan masyarakat",
+                "diharapkan": "Dokumen program kerjasama dengan pemerintah, swasta, dan masyarakat",
+                "bukti": "Melalui studi dokumen:\n(1) Program kegiatan kerja sama;\n(2) Foto kegiatan;\n(3) Jadwal Kegiatan; dan\n(4) SK Penanggung Jawab program.",
+                "driveLink": "https://drive.google.com/drive/folders/1QcShSKgEP9qFc9Yf4volfAb8ft3WgtLZ?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.3 Mengelola hubungan antara madrasah dan masyarakat dalam rangka pencarian dukungan ide, sumber belajar, dan pembiayaan.",
+                "indikator": "Memanfaatkan dan memelihara hubungan kerjasama dengan lembaga pemerintah, swasta dan masyarakat",
+                "diharapkan": "Data hasil kerjasama dengan lembaga pemerintah, swasta, dan masyarakat",
+                "bukti": "Melalui studi dokumen:\nLaporan kerja sama (MOU) dengan:\n1) lembaga minat bakat;\n2) DUDI;\n3) lembaga kesehatan;\n4) Ormas keagamaan",
+                "driveLink": "https://drive.google.com/drive/folders/1CXAwzKQ2cvuU8YrDWeH25j7gflUux8i9?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.4 Mengelola proses pencapaian 8 SNP sesuai dengan arah dan tujuan Pendidikan nasional",
+                "indikator": "Mengaplikasikan pengembangan kurikulum yang mengacu kepada standar isi",
+                "diharapkan": "Dokumen analisis 8 SNP dalam hal standar isi",
+                "bukti": "Melalui studi dokumen:\n(1) Beban kerja guru min 24 JTM;\n(2) Beban belajar siswa/JTM per minggu;\n(3) Struktur kurikulum;\n(4) SK/KD/CP/TP semua mapel/mulok;",
+                "driveLink": "https://drive.google.com/drive/folders/1mFe9yDx7ROiPV9kzOEUSR3K-rxAzPW9k?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.4 Mengelola proses pencapaian 8 SNP sesuai dengan arah dan tujuan Pendidikan nasional",
+                "indikator": "Mengaplikasikan pengembangan proses pembelajaran yang mengacu kepada standar proses",
+                "diharapkan": "Dokumen analisis 8 SNP dalam hal standar proses",
+                "bukti": "Melalui studi dokumen:\n(1) RPP/Modul Ajar semua mapel/mulok;\n(2) buku teks dengan siswa (1:1);\n(3) jurnal harian guru; dan\n(4) data siswa.",
+                "driveLink": "https://drive.google.com/drive/folders/1WbM29jFQj_75BpocgtVgqj0jfLxParMp?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.4 Mengelola proses pencapaian 8 SNP sesuai dengan arah dan tujuan Pendidikan nasional",
+                "indikator": "Mengaplikasikan sistem penilaian pembelajaran yang mengacu kepada standar penilaian",
+                "diharapkan": "Dokumen analisis 8 SNP dalam hal standar penilaian",
+                "bukti": "Melalui studi dokumen:\n(1) Bank soal semua guru;\n(2) Buku Analisis penilaian;\n(3) Jurnal nilai Sikap;\n(4) Buku Nilai pengetahuan/keterampilan;",
+                "driveLink": "https://drive.google.com/drive/folders/10xAss41Br4TgWvkZctdVc1Fc24XGqXZK?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.4 Mengelola proses pencapaian 8 SNP sesuai dengan arah dan tujuan Pendidikan nasional",
+                "indikator": "Melaksanakan penjaminan mutu pencapaian standar kompetensi lulusan",
+                "diharapkan": "Dokumen analisis 8 SNP dalam hal standar kompetensi lulusan",
+                "bukti": "Melalui studi dokumen:\n(1) Buku ekskul dan pramuka;\n(2) Program/realisasi Literasi Madrasah;\n(3) Buku kegiatan PHBI dan PHBN;\n(4) Daftar prestasi siswa (akademik/non akademik)",
+                "driveLink": "https://drive.google.com/drive/folders/1LsJZPtoOIfGogiGQcYVYIliMdmF2V9WI?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.5 Mengelola unit layanan khusus madrasah dalam mendukung kegiatan pembelajaran dan kegiatan peserta didik di madrasah.",
+                "indikator": "Mampu mengelola laboratorium madrasah agar dapat dimanfaatkan secara optimal untuk kepentingan pembelajaran peserta didik",
+                "diharapkan": "Adanya bukti pemanfaatan laboratorium dalam pembelajaran, jadwal, kegiatan, dll",
+                "bukti": "Observasi dan studi dokumen:\n(1) Daftar inventaris lab IPA/Komputer;\n(2) Buku pinjam lab;\n(3) Program kegiatan Lab;\n(4) Buku kegiatan praktek Lab;",
+                "driveLink": "https://drive.google.com/drive/folders/1-yqyEaBMFqC6hdr245NaPsFykEHp6P8o?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.5 Mengelola unit layanan khusus madrasah dalam mendukung kegiatan pembelajaran dan kegiatan peserta didik di madrasah.",
+                "indikator": "Mampu mengelola perpustakaan madrasah dalam menyiapkan sumber belajar yang diperlukan oleh peserta didik.",
+                "diharapkan": "Adanya bukti pemanfaatan perpustakaan dalam pembelajaran, jadwal, kegiatan, dll",
+                "bukti": "Observasi dan studi dokumen:\n(1) memiliki ruang perpustakaan sendiri;\n(2) buku induk perpustakaan;\n(3) buku pinjam/buku kunjungan;\n(4) memiliki pustakawan sendiri",
+                "driveLink": "https://drive.google.com/drive/folders/13ixwN2rds0k4p5JpdGS-EfM8rIi9xV4W?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.5 Mengelola unit layanan khusus madrasah dalam mendukung kegiatan pembelajaran dan kegiatan peserta didik di madrasah.",
+                "indikator": "Mampu mengelola usaha madrasah untuk pembelajaran peserta didik dan pemasukan tambahan dana bagi madrasah.",
+                "diharapkan": "Adanya bukti kegiatan usaha madrasah dalam pembelajaran.",
+                "bukti": "Melalui studi dokumen:\n1) memiliki koperasi;\n2) memiliki kantin;\n3) pertanian/kewirausahaan;\n4) donatur/mitra;",
+                "driveLink": "https://drive.google.com/drive/folders/14xdEf52tmx4I7ZhaZZgip9kepN4z5rvV?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.5 Mengelola unit layanan khusus madrasah dalam mendukung kegiatan pembelajaran dan kegiatan peserta didik di madrasah.",
+                "indikator": "Mampu mengelola koperasi madrasah baik sebagai media praktik maupun sebagai sumber belajar bagi peserta didik.",
+                "diharapkan": "Adanya bukti pemanfaatan koperasi dalam pembelajaran, jadwal, kegiatan, dll",
+                "bukti": "Observasi dan studi dokumen:\n(1) kepengurusan koperasi;\n(2) program kerja koperasi;\n(3) laporan keuangan koperasi;\n(4) melibatkan siswa dalam mengelola koperasi",
+                "driveLink": "https://drive.google.com/drive/folders/1dFquk9GlmqHYG6M7UddKOOrzwpaHScXK?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.6 Mengelola sistem informasi madrasah dalam mendukung penyusunan program dan pengambilan keputusan.",
+                "indikator": "Memanfaatkan teknologi informasi dan komunikasi dalam manajemen madrasah",
+                "diharapkan": "Adanya bukti pemanfaatan teknologi informasi dan komunikasi dalam manajemen madrasah",
+                "bukti": "Observasi, studi dokumen dan wawancara:\n(1) memiliki fasilitas IT;\n(2) memiliki operator SIM madrasah;\n(3) pengelolaan madrasah berbasis internet;\n(4) laporan keuangan berbasis internet;",
+                "driveLink": "https://drive.google.com/drive/folders/1Pmpra7Ej93Ch1rP7iUNpV5PbAy7YIpSR?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.6 Mengelola sistem informasi madrasah dalam mendukung penyusunan program dan pengambilan keputusan.",
+                "indikator": "Memanfaatkan teknologi informasi dan komunikasi dalam pembelajaran, baik sebagai sumber belajar maupun sebagai alat/media pembelajaran.",
+                "diharapkan": "Adanya bukti pemanfaatan teknologi informasi dan komunikasi sebagai sumber belajar dan media pembelajaran",
+                "bukti": "Observasi lingkungan madrasah dan wawancara:\n(1) Pembelajaran menggunakan internet;\n(2) memiliki jaringan internet (Wifi);\n(3) website/media sosial madrasah;\n(4) alamat email resmi madrasah;",
+                "driveLink": "https://drive.google.com/drive/folders/1Yx79PyIMYGhF4Yzi7Dho4K2jsrn1q8VN?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.6 Mengelola sistem informasi madrasah dalam mendukung penyusunan program dan pengambilan keputusan.",
+                "indikator": "Memanfaatkan teknologi informasi dan komunikasi dalam menjalin kerjasama dengan pihak lain.",
+                "diharapkan": "Adanya bukti pemanfaatan teknologi informasi dan komunikasi dalam menjalin kerjasama dengan pihak lain",
+                "bukti": "Observasi lingkungan madrasah, wawancara dan studi dokumen:\n(1) SIMPATIKA;\n(2) EMIS;\n(3) RDM (Rapor Digital Madrasah);\n(4) BAN-PDM / Sispena;",
+                "driveLink": "https://drive.google.com/drive/folders/18p81u7_xAvwoXrWPgTucLspYWoPqvvct?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.6 Mengelola sistem informasi madrasah dalam mendukung penyusunan program dan pengambilan keputusan.",
+                "indikator": "Memanfaatkan teknologi informasi dan komunikasi dalam promosi program madrasah dan prestasi yang telah dicapai.",
+                "diharapkan": "Adanya bukti pemanfaatan teknologi informasi dan komunikasi dalam promosi program madrasah dan prestasi yang dicapai",
+                "bukti": "Observasi lingkungan madrasah, wawancara dan studi dokumen:\n(1) PPDB melalui website/online;\n(2) Informasi keunggulan madrasah melalui website/medsos;\n(3) Informasi prestasi madrasah melalui website/medsos;\n(4) Media sosial madrasah AKTIF (update periodik);",
+                "driveLink": "https://drive.google.com/drive/folders/12MgddzGtrFkMBLGtHGjrlXwUj_YEwnNS?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.7 Memanfaatkan kemajuan teknologi informasi bagi peningkatan pembelajaran dan manajemen madrasah",
+                "indikator": "Mampu mengembangkan sistem administrasi pengelolaan secara efektif dengan dukungan penerapan teknologi informasi dan komunikasi.",
+                "diharapkan": "Terdapat penerapan TIK (berbasis komputer, media digital, jejaring internet) dalam pengelolaan administrasi persuratan, sarana prasarana, kepegawaian, kesiswaan, dan keuangan.",
+                "bukti": "Observasi lingkungan madrasah dan wawancara:\n(1) jumlah komputer dan LCD yang cukup;\n(2) memiliki jaringan internet;\n(3) memiliki web/medsos sekolah;\n(4) memiliki e-mail madrasah; dan\n(5) Memanfaatkan TIK untuk administrasi madrasah.",
+                "driveLink": "https://drive.google.com/drive/folders/1Z0PVl60lN_BpgMJURjKpdOcRhMwEw-Fn?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.7 Memanfaatkan kemajuan teknologi informasi bagi peningkatan pembelajaran dan manajemen madrasah",
+                "indikator": "Mengelola administrasi pembelajaran secara efektif dengan dukungan penerapan teknologi informasi dan komunikasi.",
+                "diharapkan": "Model penerapan TIK dalam pengelolaan administrasi kurikulum dan pembelajaran, misalnya, pengelolaan kurikulum berbasis komputer, intranet, dan internet.",
+                "bukti": "Observasi lingkungan madrasah dan wawancara:\n(1) ketersediaan komputer dan LCD proyektor;\n(2) memiliki jaringan internet;\n(3) memanfaatkan TIK untuk pembelajaran;\n(4) pengelolaan pembelajaran berbasis aplikasi digital",
+                "driveLink": "https://drive.google.com/drive/folders/1ZGS5z7hrAC1mLhlSrjh0Ip9NMxej7YhD?usp=drive_link"
+            },
+            {
+                "unsur": "A. Usaha Pengembangan Madrasah",
+                "sub": "1.7 Memanfaatkan kemajuan teknologi informasi bagi peningkatan pembelajaran dan manajemen madrasah",
+                "indikator": "Mampu mengembangkan sistem pengelolaan perpustakaan secara efektif dengan dukungan penerapan teknologi informasi dan komunikasi.",
+                "diharapkan": "Model pemanfaatan TIK dalam sistem pengelolaan perpustakaan berbasis komputer, intranet, atau internet.",
+                "bukti": "Observasi dan studi dokumen:\n(1) katalog digital;\n(2) Buku Digital / BSE;\n(3) aplikasi layanan perpustakaan;\n(4) komputer layanan perpustakaan;",
+                "driveLink": "https://drive.google.com/drive/folders/153EbyArgQsjN6_Ld39Mre94OvAEICRKk?usp=drive_link"
+            },
+
+            // ==================== UNSUR B ====================
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.1 Menyusun perencanaan madrasah untuk berbagai tingkatan perencanaan.",
+                "indikator": "Mampu mengembangkan RKJM, RKT/RKAM dengan program lainnya berdasarkan data hasil evaluasi dalam pemenuhan 8 SNP",
+                "diharapkan": "Dokumen RKJM, RKT/RKAM yang meliputi SNP",
+                "bukti": "Melalui studi dokumen:\n(1) Dokumen Evaluasi Diri Madrasah (EDM);\n(2) Dokumen RKJM;\n(3) Dokumen RKT;\n(4) Dokumen RKAM / RAPBM;",
+                "driveLink": "https://drive.google.com/drive/folders/17FqRNCuTfoC_tZiOYFP-CSuBoPcRsp1B?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.1 Menyusun perencanaan madrasah untuk berbagai tingkatan perencanaan.",
+                "indikator": "Mampu merumuskan visi-misi sebagai arah pengembangan program RKJM, RKT/RKAS dan program lainnya.",
+                "diharapkan": "Visi-misi madrasah merupakan rumusan hasil keputusan bersama.",
+                "bukti": "Melalui studi dokumen:\n(1) memiliki Tim Pengembang Madrasah;\n(2) memiliki visi, misi madrasah;\n(3) berita acara dan daftar hadir kegiatan perumusan/peninjauan kembali dan penetapan visi dan misi;\n(4) memiliki indikator visi dan misi Madrasah",
+                "driveLink": "https://drive.google.com/drive/folders/1pErTzLlcVCp5LNQWS2Gs0zJvDCNzI5Cn?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.1 Menyusun perencanaan madrasah untuk berbagai tingkatan perencanaan.",
+                "indikator": "Mampu menentukan strategi pencapaian tujuan madrasah, dilengkapi dengan indikator pencapaian yang terukur",
+                "diharapkan": "Dokumen program yang memuat strategi pencapaian tujuan madrasah",
+                "bukti": "Melalui studi dokumen:\n(1) memiliki tujuan madrasah;\n(2) memiliki indikator tujuan madrasah;\n(3) program kerja madrasah;\n(4) proker kepala madrasah",
+                "driveLink": "https://drive.google.com/drive/folders/1DGvUcKxtY9uLjUQa5ZpLK2H38O6WNeds?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.1 Menyusun perencanaan madrasah untuk berbagai tingkatan perencanaan.",
+                "indikator": "Mampu menyusun program dengan rencana evaluasi keterlaksanaan dan pencapaian program",
+                "diharapkan": "Dokumen rencana evaluasi keterlaksanaan dan pencapaian program.",
+                "bukti": "Melalui studi dokumen:\n(1) Buku realisasi proker madrasah;\n(2) Buku realisasi proker kepala madrasah;\n(3) laporan capaian proker madrasah;\n(4) laporan capaian proker kepala madrasah",
+                "driveLink": "https://drive.google.com/drive/folders/1O19THx-LJP1aK1Q8zdish3tgl1nNTZS2?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.2 Memimpin madrasah dalam rangka pendayagunaan sumber daya madrasah secara optimal.",
+                "indikator": "Mampu memberi contoh berdisiplin; hadir tepat waktu, disiplin menggunakan waktu, dan tepat waktu mengakhiri pekerjaan.",
+                "diharapkan": "Dokumen daftar hadir semua kegiatan madrasah",
+                "bukti": "Observasi, wawancara dan studi dokumen:\n(1) daftar hadir kamad dan PTK;\n(2) presensi digital / fingerprint kamad dan PTK;\n(3) jurnal kegiatan kamad;\n(4) Buku kegiatan lintas sektoral kamad",
+                "driveLink": "https://drive.google.com/drive/folders/1AluOVtwfnWPTFEG-jJd4PK46ooGZFrlT?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.2 Memimpin madrasah dalam rangka pendayagunaan sumber daya madrasah secara optimal.",
+                "indikator": "Mampu melaksanakan peraturan sesuai dengan ketentuan yang berlaku",
+                "diharapkan": "Menjadi contoh dan mengarahkan guru, staf administrasi, dan peserta didik melaksanakan kegiatan sesuai dengan peraturan",
+                "bukti": "Wawancara dengan warga madrasah:\n(1) Wawancara dengan guru;\n(2) Wawancara dengan Tendik;\n(3) Wawancara dengan komite;\n(4) Wawancara dengan yayasan/penyelenggara pendidikan",
+                "driveLink": "https://drive.google.com/drive/folders/19yo7E2uacCjmnH-cNYi5UM63x2Dtk04_?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.2 Memimpin madrasah dalam rangka pendayagunaan sumber daya madrasah secara optimal.",
+                "indikator": "Mampu menunjukkan keteladanan dalam memanfaatkan sumber daya secara efektif dan efisien.",
+                "diharapkan": "Memecahkan masalah madrasah secara bersama-sama, merencanakan pemanfaatan sumber belajar dan sumber informasi, memantau penggunaan sumber daya, dan menilai pemanfaatan sumber daya",
+                "bukti": "Observasi, Wawancara dan studi dokumen:\n(1) daftar hadir rapat-rapat;\n(2) Notulen rapat-rapat;\n(3) berita acara rapat-rapat;\n(4) adanya dialog konstruktif dalam rapat-rapat",
+                "driveLink": "https://drive.google.com/drive/folders/1TRc3KzZlIRKUWwh2bBfLgluek2G2Gnu5?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.2 Memimpin madrasah dalam rangka pendayagunaan sumber daya madrasah secara optimal.",
+                "indikator": "Mampu menunjukkan kedisiplinan sebagai insan pembelajar.",
+                "diharapkan": "Rajin membaca dan pendengar yang baik, mengekspresikan pikiran secara tertulis, mengkomunikasikan ilmu pengetahuan baru, dan menyediakan berbagai media untuk mengembangkan gagasan warga madrasah",
+                "bukti": "Wawancara, observasi:\n(1) koleksi buku referensi/ilmu pengetahuan;\n(2) penelitian tindakan sekolah (PTS);\n(3) memiliki karya/jurnal kependidikan;\n(4) Buku pembinaan/konsultasi guru",
+                "driveLink": "https://drive.google.com/drive/folders/1jz6xbrIl5MkxqwZYzZCNDVqfSGsXzhsQ?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.3 Menciptakan budaya dan iklim madrasah yang kondusif dan inovatif bagi pembelajaran peserta didik.",
+                "indikator": "Mampu menjadi contoh dan berbudaya mutu yang kompetitif dalam mendorong peningkatan prestasi akademik dan nonakademik peserta didik",
+                "diharapkan": "Dokumen peningkatan KKM/KKTP, target hasil ujian, dan target keunggulan nonakademik peserta didik yang terprogram, terlaksana, dan meningkat hasilnya",
+                "bukti": "Wawancara dan studi dokumen:\n(1) dok KKM/KKTP yang selalu dievaluasi;\n(2) dok hasil Ujian/Asesmen;\n(3) program keunggulan dan inovasi baik akademik maupun non akademik; dan\n(4) data prestasi akademik dan non akademik.",
+                "driveLink": "https://drive.google.com/drive/folders/1izq_Aq2MuMvQCtyac6v0-eer6_lCGnRn?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.3 Menciptakan budaya dan iklim madrasah yang kondusif dan inovatif bagi pembelajaran peserta didik.",
+                "indikator": "Mampu melengkapi sarana dan prasarana untuk menciptakan suasana belajar kondusif dan inovatif bagi peserta didik",
+                "diharapkan": "Suasana lingkungan madrasah yang asri, bersih, rindang, aman, dan menyenangkan peserta didik",
+                "bukti": "Observasi lingkungan madrasah:\n(1) memiliki taman madrasah;\n(2) memiliki tempat baca di luar kelas;\n(3) memiliki ruang sirkulasi yang memadai;\n(4) memiliki program 7 K",
+                "driveLink": "https://drive.google.com/drive/folders/1_nlRcS6fQ4Bx3cxJm9VEO4xPkPWsT7l7?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.3 Menciptakan budaya dan iklim madrasah yang kondusif dan inovatif bagi pembelajaran peserta didik.",
+                "indikator": "Mampu memfasilitasi kegiatan-kegiatan untuk meningkatkan budaya baca dan budaya tulis peserta didik.",
+                "diharapkan": "Data kunjungan perpustakaan, peminjaman buku oleh peserta didik, pembaharuan buku dan bahan bacaan, ketersediaan sumber belajar berbasis TIK, dan sarana publikasi karya tulis, dan mengembangkan kompetisi karya tulis peserta didik tingkat madrasah.",
+                "bukti": "Observasi, wawancara dan studi dokumen:\n(1) memiliki proker dan laporan literasi madrasah;\n(2) dokumen kegiatan budaya baca;\n(3) papan pajang/mading hasil karya siswa;\n(4) memiliki majalah dinding / buletin madrasah",
+                "driveLink": "https://drive.google.com/drive/folders/1DvJ37-INU5vBj6SJM9p09zHWERgWz8Un?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.3 Menciptakan budaya dan iklim madrasah yang kondusif dan inovatif bagi pembelajaran peserta didik.",
+                "indikator": "Mampu memfasilitasi kegiatan-kegiatan lomba di bidang akademik dan nonakademik bagi peserta didik",
+                "diharapkan": "Dokumen penyelenggaraan kegiatan kompetisi yang dimulai dari tingkat madrasah, perolehan piagam penghargaan, piala, trofi perlombaan bidang akademik dan nonakademik.",
+                "bukti": "Observasi dan studi dokumen:\n(1) dokumen penyelenggaraan/keikutsertaan lomba-lomba;\n(2) Buku prestasi akademik/non akademik;\n(3) rak pajang trofi/piala;\n(4) dok piagam penghargaan",
+                "driveLink": "https://drive.google.com/drive/folders/1QUcWlJz-AAB0D-vQ_IIM_Apz3wu6QEg_?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.4 Mengelola guru dan staf dalam rangka pendayagunaan sumber daya manusia secara optimal.",
+                "indikator": "Mampu menyusun perencanaan pengembangan pendidik dan tenaga kependidikan",
+                "diharapkan": "Dokumen program pembinaan pendidik dan tenaga kependidikan di madrasah",
+                "bukti": "Studi dokumen dan wawancara:\n(1) dok PKG dan analisis PKG;\n(2) raport guru / penilaian kinerja;\n(3) program pengembangan keprofesian berkelanjutan (PKB guru);\n(4) dokumen kegiatan KKG/MGMP guru",
+                "driveLink": "https://drive.google.com/drive/folders/1oXl25da_oascuHWf7o04LTkJmj3TsdJo?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.4 Mengelola guru dan staf dalam rangka pendayagunaan sumber daya manusia secara optimal.",
+                "indikator": "Mampu melakukan pembinaan berkala untuk meningkatkan mutu SDM madrasah",
+                "diharapkan": "Dokumen pelaksanaan kegiatan pembinaan guru.",
+                "bukti": "Studi dokumen dan wawancara:\n(1) dokumen pembinaan guru;\n(2) dok pemberian teladan kamad;\n(3) dok diskusi/coaching dengan guru;\n(4) dok partisipasi PKB guru",
+                "driveLink": "https://drive.google.com/drive/folders/1PEa_tzR0TZB7-CAqqPIOV2jnKd3mSaCF?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.4 Mengelola guru dan staf dalam rangka pendayagunaan sumber daya manusia secara optimal.",
+                "indikator": "Memfasilitasi guru dan staf administrasi untuk meningkatkan kegiatan pembinaan kompetensi",
+                "diharapkan": "Data dukungan Kepala Madrasah dalam memfasilitasi staf administrasi untuk meningkatkan mutu profesi.",
+                "bukti": "Studi dokumen dan wawancara:\n(1) buku pengembangan profesi guru (diklat/penataran/workshop/seminar dll);\n(2) buku pengembangan profesi tendik (diklat/penataran/workshop/seminar dll);\n(3) Anggaran pengembangan Pendik/tendik;\n(4) laporan hasil diklat/penataran/workshop/seminar dll",
+                "driveLink": "https://drive.google.com/drive/folders/1tIclISgCBKmf3fUStXNadweK0lo5FpCa?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.4 Mengelola guru dan staf dalam rangka pendayagunaan sumber daya manusia secara optimal.",
+                "indikator": "Memantau dan menilai penerapan hasil pelatihan dalam pekerjaan di madrasah",
+                "diharapkan": "Dokumen program evaluasi pelatihan atau pengembangan profesi pendidik dan tenaga kependidikan",
+                "bukti": "Observasi dan studi dokumen:\n(1-2) program pelatihan pengembangan profesi guru dan tendik; dan\n(3-4) laporan evaluasi pelaksanaan pelatihan pengembangan profesi guru dan tendik",
+                "driveLink": "https://drive.google.com/drive/folders/1d-BzGHD4euAfrU6XrAoKFn0wGJyvC031?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.5 Mengelola sarana dan prasarana madrasah dalam rangka pendayagunaan secara optimal",
+                "indikator": "Mampu mengelola fasilitas prasarana, perabot dan sarana madrasah (gedung, bangunan, dan lahan meja, kursi, lemari, peralatan kantor, dan alat kebersihan)",
+                "diharapkan": "Data fasilitas prasarana, perabot, dan sarana madrasah dikelola dengan baik",
+                "bukti": "Observasi dan studi dokumen:\n(1-2) buku inventaris sarana prasarana;\n(3-4) anggaran dan bukti pemeliharaan sarana dan prasarana.",
+                "driveLink": "https://drive.google.com/drive/folders/1u4a8PLxY3jPxybBQLKFbHmyzgrN82qIV?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.5 Mengelola sarana dan prasarana madrasah dalam rangka pendayagunaan secara optimal",
+                "indikator": "Mampu mengelola perpustakaan madrasah",
+                "diharapkan": "Data perpustakaan dikelola dengan baik",
+                "bukti": "Observasi fisik dan studi dokumen:\n(1) ruang/gedung terawat dengan baik;\n(2) ruangan tertata rapi;\n(3) memiliki meja kursi pustakawan;\n(4) memiliki rak buku/majalah/meja baca",
+                "driveLink": "https://drive.google.com/drive/folders/1POhvdvbuw6hNqT3CseqmVuDOl7f4QR9T?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.5 Mengelola sarana dan prasarana madrasah dalam rangka pendayagunaan secara optimal",
+                "indikator": "Mampu mengelola laboratorium madrasah",
+                "diharapkan": "Data laboratorium dikelola dengan baik",
+                "bukti": "Observasi fisik dan studi dokumen:\n(1-2) ruang/almari lab terawat dengan baik;\n(3-4) alat peraga/laboratorium tertata rapi dan bersih;",
+                "driveLink": "https://drive.google.com/drive/folders/1RiTvCHuIgGaWz87HBmcvRp54lpDGmim5?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.5 Mengelola sarana dan prasarana madrasah dalam rangka pendayagunaan secara optimal",
+                "indikator": "Mampu mengelola fasilitas penunjang madrasah lainnya (bengkel, toko, koperasi, kebun, dsb)",
+                "diharapkan": "Data fasilitas penunjang terkelola dengan baik",
+                "bukti": "Observasi fisik, wawancara dan studi dokumen:\n(1) memiliki ruang toko/kantin;\n(2) memiliki ruang koperasi;\n(3) memiliki kebun/lahan hijau;\n(4) memiliki fasilitas penunjang kegiatan siswa",
+                "driveLink": "https://drive.google.com/drive/folders/1kP7OGhKTdxm49_Tdgo7qDdUdJ14dmHCY?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.6 Mengelola peserta didik dalam rangka penerimaan peserta didik baru, dan penempatan dan pengembangan kapasitas peserta didik",
+                "indikator": "Menyusun perencanaan penerimaan, pengelolaan dan pengembangan kompetensi peserta didik.",
+                "diharapkan": "Dokumen program penerimaan peserta didik baru, kriteria penerimaan peserta didik, data hasil analisis bekal ajar peserta didik awal,",
+                "bukti": "Studi dokumen:\n(1) buku penerimaan peserta didik baru;\n(2) brosur/pamflet PPDB;\n(3) dok analisis kemampuan awal peserta didik baru;\n(4) SK kepanitiaan PPDB",
+                "driveLink": "https://drive.google.com/drive/folders/1WH4ldtfzHHpsWX9U_w376juddcoBGbod?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.6 Mengelola peserta didik dalam rangka penerimaan peserta didik baru, dan penempatan dan pengembangan kapasitas peserta didik",
+                "indikator": "Memiliki program pengembangan potensi diri dan prestasi peserta didik.",
+                "diharapkan": "Dokumen program pengembangan potensi diri dan prestasi peserta didik.",
+                "bukti": "Observasi dan studi dokumen:\n(1) dok proker dan pelaksanaan pramuka;\n(2) dok proker dan pelaksanaan ekskul;\n(3) dok proker dan pelaksanaan pembinaan prestasi unggulan;\n(4) dok kerjasama lembaga minat bakat siswa",
+                "driveLink": "https://drive.google.com/drive/folders/1HbI0uYDVLwKwc4ObUuJr059zKs5QlleE?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.6 Mengelola peserta didik dalam rangka penerimaan peserta didik baru, dan penempatan dan pengembangan kapasitas peserta didik",
+                "indikator": "Memfasilitasi kegiatan-kegiatan untuk meningkatkan pembiasaan melalui penanaman nilai-nilai.",
+                "diharapkan": "Data program kegiatan akademik dan nonakademik melalui penanaman nilai-nilai.",
+                "bukti": "Observasi lingkungan aktivitas siswa, wawancara dan studi dokumen:\n(1) dok pembiasaan 5S (Salam, Sapa, Senyum, Sopan, Santun);\n(2) dok kegiatan ibadah (Sholat Dhuha/Dzuhur berjamaah, Tahfidz);\n(3) dok pembiasaan kebersihan diri dan lingkungan;\n(4) dok kegiatan pembinaan karakter islami",
+                "driveLink": "https://drive.google.com/drive/folders/1uQ2XcHqOvwNxWQtMtzjHRNOM4hcLDK4i?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.6 Mengelola peserta didik dalam rangka penerimaan peserta didik baru, dan penempatan dan pengembangan kapasitas peserta didik",
+                "indikator": "Memfasilitasi kegiatan pengembangan diri bagi peserta didik, pendidik, dan tenaga kependidikan lainnya secara optimal",
+                "diharapkan": "Data keterlaksanaan program pengembangan diri peserta didik, pendidik, dan tenaga kependidikan",
+                "bukti": "Observasi lingkungan aktivitas siswa dan guru, wawancara dan studi dokumen:\n(1) program kegiatan pengembangan diri;\n(2) dokumentasi kegiatan;\n(3) data prestasi siswa, guru dan tendik.",
+                "driveLink": "https://drive.google.com/drive/folders/1tRdc_kBf-E6QjuOGYiSzZb_Qt259NOiV?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.7 Mengelola pengembangan kurikulum dan kegiatan pembelajaran sesuai dengan arah dan tujuan pendidikan nasional",
+                "indikator": "Mampu mengarahkan secara efektif dalam menerapkan prinsip-prinsip pengembangan Kurikulum (KTSP/KOSM) dalam kegiatan IHT, Workshop, Rapat Koordinasi, dan kegiatan MGMP/KKG.",
+                "diharapkan": "Dokumen hasil pengembangan kurikulum yang disusun melalui rapat kerja, IHT, Workshop, Rakor, atau kegiatan MGMP/KKG",
+                "bukti": "Studi dokumen:\n(1) dokumen kurikulum yang berlaku (KTSP/KOSM);\n(2) SK tim pengembang kurikulum; dan\n(3) dokumen penyusunan dokumen kurikulum (daftar hadir, berita acara, notulen).",
+                "driveLink": "https://drive.google.com/drive/folders/1Vx761EvslkyQEidbc_XGca3WT2sx4qo8?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.7 Mengelola pengembangan kurikulum dan kegiatan pembelajaran sesuai dengan arah dan tujuan pendidikan nasional",
+                "indikator": "Mampu mengendalikan pelaksanaan Kurikulum berlandaskan kalender pendidikan, menerbitkan surat keputusan pembagian tugas mengajar, dan menerapkan aturan akademik.",
+                "diharapkan": "Pelaksanaan kurikulum sesuai dengan kalender pendidikan tingkat madrasah, surat keputusan pembagian tugas mengajar, dan aturan akademik.",
+                "bukti": "Studi dokumen:\n(1) struktur kurikulum;\n(2) jadwal pelajaran;\n(3) daftar hadir guru; dan\n(4) peraturan akademik",
+                "driveLink": "https://drive.google.com/drive/folders/18fhDJuToQxrtlILroH1hvlV8atVOgg4b?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.7 Mengelola pengembangan kurikulum dan kegiatan pembelajaran sesuai dengan arah dan tujuan pendidikan nasional",
+                "indikator": "Memfasilitasi efektivitas tim kerja guru dalam rangka meningkatkan mutu pembelajaran.",
+                "diharapkan": "Bukti pelaksanaan kerja sama guru pada tingkat satuan pendidikan, antar satuan pendidikan dalam meningkatkan mutu perencanaan, proses, pembelajaran",
+                "bukti": "Studi dokumen:\n(1) program KKG/MGMP di madrasah; dan\n(2) laporan pelaksanaan KKG/MGMP paket 1 (Silabus/RPP/Modul Ajar);\n(3) laporan pelaksanaan KKG/MGMP paket 2 (metode/model/strategi pembelajaran);\n(4) laporan pelaksanaan KKG/MGMP paket 3 (Evaluasi/Penelitian)",
+                "driveLink": "https://drive.google.com/drive/folders/1p7cCKNRLFCupokBs3c7xjRs0kUgVQucA?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.7 Mengelola pengembangan kurikulum dan kegiatan pembelajaran sesuai dengan arah dan tujuan pendidikan nasional",
+                "indikator": "Mampu mengembangkan pelayanan belajar yang inovatif melalui pengembangan perangkat dan sumber belajar yang terbarukan.",
+                "diharapkan": "Bukti penggunaan metode hasil pelatihan paling akhir, memanfaatkan teknologi informasi dan komunikasi, penggunaan alat peraga, teknik evaluasi baru yang menghasilkan produk belajar peserta didik yang dipublikasikan di lingkungan madrasah atau media lain",
+                "bukti": "Observasi kelas, wawancara dengan siswa dan guru:\n1) semua guru menggunakan media pembelajaran;\n2) semua guru memanfaatkan alat peraga;\n3) semua guru menerapkan model pembelajaran inovatif;\n4) semua guru menggunakan sumber belajar variatif;",
+                "driveLink": "https://drive.google.com/drive/folders/1XRtCi1neG_TG5squ60fJxbzGDinDPatV?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.7 Mengelola pengembangan kurikulum dan kegiatan pembelajaran sesuai dengan arah dan tujuan pendidikan nasional",
+                "indikator": "Memfasilitasi peserta didik dalam mengembangkan kolaborasi dan kompetisi bidang akademik dan nonakademik",
+                "diharapkan": "Data kegiatan kolaborasi dan kompetisi peserta didik tingkat madrasah, baik akademik dan non akademik.",
+                "bukti": "Wawancara dan studi dokumen:\n(1) kegiatan pembinaan bimbingan KSM / Kompetisi Sains;\n(2) kegiatan pembinaan ekstrakurikuler seni & olahraga;\n(3) kegiatan pembiasaan UKS / PMR / Pramuka;\n(4) kegiatan kolaborasi/studi lapangan siswa.",
+                "driveLink": "https://drive.google.com/drive/folders/1vpNkYBSnAxTmMGE42GQIt2VpQEKwnda-?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.8 Mengelola keuangan madrasah sesuai dengan prinsip pengelolaan yang akuntabel, transparan, dan efisien",
+                "indikator": "Mampu merencanakan kebutuhan keuangan madrasah sesuai dengan rencana pengembangan madrasah, baik jangka pendek maupun jangka panjang",
+                "diharapkan": "Dokumen RKJM dan RKTM/RKAM",
+                "bukti": "Studi dokumen:\n(1) RKAM / RAPBM;\n(2) SPJ keuangan;\n(3) Buku Kas Umum (BKU) dan pembantu;\n(4) bukti fisik pengeluaran kas",
+                "driveLink": "https://drive.google.com/drive/folders/1ogMr2QJq-AqJTUhrkBVGuigxTKbyvBlD?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.8 Mengelola keuangan madrasah sesuai dengan prinsip pengelolaan yang akuntabel, transparan, dan efisien",
+                "indikator": "Mampu mengupayakan sumber-sumber keuangan terutama dari luar madrasah dan dari unit usaha madrasah",
+                "diharapkan": "Dokumen pendukung perolehan dana dari unit usaha atau kemitraan",
+                "bukti": "Studi dokumen:\n(1) laporan kantin/toko madrasah;\n(2) laporan unit usaha koperasi;\n(3) laporan pengelolaan infak/donasi/kemitraan;\n(4) laporan unit wirausaha lainnya",
+                "driveLink": "https://drive.google.com/drive/folders/16WnxsHwwzzYgr_ub5nE7WdVaOXeUqeEx?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.8 Mengelola keuangan madrasah sesuai dengan prinsip pengelolaan yang akuntabel, transparan, dan efisien",
+                "indikator": "Mampu mengkoordinasikan belanja keuangan sesuai dengan peraturan dan perundang-undangan berdasarkan asas prioritas dan efisiensi.",
+                "diharapkan": "Dokumen RKJM dan RKTM/RKAM sesuai regulasi",
+                "bukti": "Studi dokumen:\n1) RKJM;\n2) RKT/RKAM;\n3) skala prioritas belanja sarpras & operasional;\n4) rencana belanja berkala madrasah.",
+                "driveLink": "https://drive.google.com/drive/folders/1lOjyER5QCVGSY5eBWtjbKWB8pAEaJtAA?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.8 Mengelola keuangan madrasah sesuai dengan prinsip pengelolaan yang akuntabel, transparan, dan efisien",
+                "indikator": "Mampu membuat laporan dan evaluasi pengelolaan keuangan madrasah sesuai dengan prinsip efisien, transparan, dan akuntabel.",
+                "diharapkan": "Dokumen pelaporan keuangan resmi",
+                "bukti": "Studi dokumen:\n(1-2) SPJ keuangan kepada pemerintah (BOS/Kemenag);\n(3-4) SPJ / Laporan keuangan kepada yayasan/komite/masyarakat",
+                "driveLink": "https://drive.google.com/drive/folders/1_GbZZN2RFR6NwaC25e3QDFCrIUYaXixX?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.9 Mengelola ketatausahaan madrasah dalam mendukung pencapaian tujuan madrasah",
+                "indikator": "Mampu mengelola administrasi surat masuk dan surat keluar sesuai dengan pedoman persuratan yang berlaku",
+                "diharapkan": "Adanya bukti dokumen surat masuk dan keluar",
+                "bukti": "Melalui studi dokumen:\n1) buku agenda surat masuk;\n2) buku agenda surat keluar;\n3) arsip surat masuk;\n4) arsip surat keluar;",
+                "driveLink": "https://drive.google.com/drive/folders/1A8kv4UQaPNeAn9HoaCWmfMsh_KizD3D1?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.9 Mengelola ketatausahaan madrasah dalam mendukung pencapaian tujuan madrasah",
+                "indikator": "Mampu mengelola administrasi madrasah yang meliputi administrasi akademik, kesiswaan, sarana/prasarana, keuangan, dan hubungan madrasah dengan masyarakat",
+                "diharapkan": "Adanya bukti dokumen administrasi madrasah",
+                "bukti": "Melalui studi dokumen:\n1) pembagian tugas guru/jadwal pelajaran;\n2) kelengkapan data kesiswaan per rombel;\n3) buku inventaris sarpras;\n4) dokumentasi keaktifan Komite/Yayasan;",
+                "driveLink": "https://drive.google.com/drive/folders/1ZPLLJd84Sk3yBwY0-kGFiAtB5p6q_oUZ?usp=sharing"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.9 Mengelola ketatausahaan madrasah dalam mendukung pencapaian tujuan madrasah",
+                "indikator": "Mampu mengelola administrasi kearsipan madrasah baik arsip dinamis maupun arsip lainnya",
+                "diharapkan": "Adanya bukti dokumen administrasi kearsipan madrasah",
+                "bukti": "Melalui studi Dokumen:\n1) arsip surat masuk/keluar tertata;\n2) arsip dokumen personalia/PTK;\n3) arsip SPJ keuangan;\n4) arsip dokumen Asesmen/Ujian;",
+                "driveLink": "https://drive.google.com/drive/folders/1W_uEF16NRoUz7RTODym3OPS8kwjsfGSo?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.9 Mengelola ketatausahaan madrasah dalam mendukung pencapaian tujuan madrasah",
+                "indikator": "Mampu mengelola administrasi akreditasi madrasah sesuai dengan prinsip-prinsip tersedianya dokumen pendukung dan bukti fisik",
+                "diharapkan": "Adanya bukti dokumen administrasi kelengkapan akreditasi",
+                "bukti": "Melalui studi Dokumen:\n1) dok bukti fisik standar isi dan standar proses;\n2) dok bukti fisik standar SKL dan standar PTK;\n3) dok bukti fisik standar sarpras dan standar pengelolaan;\n4) dok bukti fisik standar pembiayaan dan penilaian;",
+                "driveLink": "https://drive.google.com/drive/folders/1A_TW9cv5Hj_SatKWa--LPlJHdwVH2d96?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.10 Melakukan monitoring, evaluasi, dan pelaporan pelaksanaan program kegiatan madrasah dengan prosedur yang tepat, serta merencanakan tindak lanjutnya.",
+                "indikator": "Menyusun standar kinerja program pendidikan yang dapat diukur dan dinilai",
+                "diharapkan": "Dokumen SKP / Target Kinerja yang terukur",
+                "bukti": "Melalui studi dokumen:\n1) memiliki indikator visi madrasah;\n2) memiliki indikator misi madrasah;\n3) memiliki indikator tujuan madrasah;\n4) memiliki indikator ketercapaian program kerja;",
+                "driveLink": "https://drive.google.com/drive/folders/1XQZPg-Lo5iOQxV2dg54gHDAymcPUmX3U?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.10 Melakukan monitoring, evaluasi, dan pelaporan pelaksanaan program kegiatan madrasah dengan prosedur yang tepat, serta merencanakan tindak lanjutnya.",
+                "indikator": "Melakukan monitoring dan evaluasi kinerja program pendidikan dengan menggunakan teknik yang sesuai",
+                "diharapkan": "Dokumen pelaksanaan monitoring dan evaluasi yang sesuai",
+                "bukti": "Melalui studi dokumen:\n1) dok monitoring kunjungan kelas / supervisi;\n2) dok monitoring kegiatan ekskul;\n3) dok monitoring pelaksanaan Asesmen/PAS/PAT;\n4) dok monitoring pengelolaan keuangan",
+                "driveLink": "https://drive.google.com/drive/folders/1_FLkXa3ccEsBIBS9igrguAttEDdZdzXA?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.10 Melakukan monitoring, evaluasi, dan pelaporan pelaksanaan program kegiatan madrasah dengan prosedur yang tepat, serta merencanakan tindak lanjutnya.",
+                "indikator": "Menyusun laporan sesuai dengan standar pelaporan monitoring dan evaluasi",
+                "diharapkan": "Dokumen laporan pelaksanaan monitoring dan evaluasi",
+                "bukti": "Melalui studi dokumen:\n1) laporan capaian proker madrasah;\n2) laporan kinerja kepala madrasah;\n3) laporan pelaksanaan Asesmen/PAT/PAS;\n4) laporan pelaksanaan Ujian Madrasah",
+                "driveLink": "https://drive.google.com/drive/folders/1B4UWa3CBK4-oOBzgmwAfbfQWxE7kXvwm?usp=drive_link"
+            },
+            {
+                "unsur": "B. Pelaksanaan Tugas Manajerial",
+                "sub": "2.10 Melakukan monitoring, evaluasi, dan pelaporan pelaksanaan program kegiatan madrasah dengan prosedur yang tepat, serta merencanakan tindak lanjutnya.",
+                "indikator": "Merumuskan program tindak lanjut berdasarkan hasil evaluasi pelaksanaan program sebelumnya",
+                "diharapkan": "Dokumen program tindak lanjut berdasarkan hasil monitoring dan evaluasi",
+                "bukti": "Melalui studi dokumen:\n1) program tindak lanjut hasil kunjungan kelas;\n2) program tindak lanjut hasil monitoring ekskul;\n3) program tindak lanjut hasil Asesmen/PAS/PAT;\n4) program tindak lanjut hasil Ujian;",
+                "driveLink": "https://drive.google.com/drive/folders/14Ni0lJsvL8chU2lRz-5TtPQr38fTX_U_?usp=drive_link"
+            },
+
+            // ==================== UNSUR C ====================
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.1 Menciptakan inovasi yang bermanfaat dan tepat bagi pengembangan madrasah",
+                "indikator": "Memahami dan menghayati arti dan tujuan perubahan (inovasi) madrasah",
+                "diharapkan": "Adanya bukti perubahan madrasah yang lebih baik dari tahun ke tahun",
+                "bukti": "Melalui studi dokumen:\n1-2) memiliki program wirausaha/inovasi madrasah;\n3-4) dok langkah-langkah pencapaian program wirausaha madrasah;",
+                "driveLink": "https://drive.google.com/drive/folders/1fWNCyyuXNhTEXOH-hsNCGkmoRVuHy75W?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.1 Menciptakan inovasi yang bermanfaat dan tepat bagi pengembangan madrasah",
+                "indikator": "Menggunakan metode, teknik dan proses perubahan madrasah",
+                "diharapkan": "Adanya bukti strategi dalam perubahan madrasah yang lebih baik",
+                "bukti": "Teknik pengembangan wirausaha madrasah melalui:\n(1-2) pengadaan/inovasi produk baru;\n(3-4) memanfaatkan potensi/barang daur ulang menjadi bernilai ekonomi",
+                "driveLink": "https://drive.google.com/drive/folders/1Pd0Amm_K83TSMpwRzMvGb2j5fkZ7yR-q?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.1 Menciptakan inovasi yang bermanfaat dan tepat bagi pengembangan madrasah",
+                "indikator": "Menumbuhkan iklim yang mendorong kebebasan berfikir untuk menciptakan kreativitas dan inovasi",
+                "diharapkan": "Adanya bukti iklim yang mendorong kebebasan berpikir kreatif dan inovatif",
+                "bukti": "Program wirausaha/inovasi madrasah:\n(1) inisiatif/melibatkan kepala;\n(2) inisiatif/melibatkan kepala dan guru;\n(3) inisiatif/melibatkan kepala, guru dan tendik;\n(4) inisiatif/melibatkan kepala, guru, tendik dan komite/orang tua;",
+                "driveLink": "https://drive.google.com/drive/folders/1TZJeISQjIJ2RnVvtG8M0z_uiXvVvN2GT?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.1 Menciptakan inovasi yang bermanfaat dan tepat bagi pengembangan madrasah",
+                "indikator": "Mendorong warga madrasah untuk melakukan prakarsa/keberanian moral untuk melakukan hal-hal baru",
+                "diharapkan": "Adanya bukti warga madrasah yang memiliki keberanian untuk melakukan hal-hal baru",
+                "bukti": "Wirausaha madrasah:\n(1) memiliki 1 jenis usaha/inovasi;\n(2) memiliki 2 jenis usaha/inovasi;\n(3) memiliki 3 jenis usaha/inovasi;\n(4) memiliki 4 jenis usaha/inovasi;",
+                "driveLink": "https://drive.google.com/drive/folders/1szTYPdh2pDhAboPXmZ0WxCpqSXamW4n6?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.2 Bekerja keras untuk mencapai keberhasilan madrasah sebagai organisasi pembelajaran yang efektif",
+                "indikator": "Mampu bertindak kreatif dan inovatif dalam melaksanakan pekerjaan melalui cara berfikir dan cara bertindak",
+                "diharapkan": "Adanya bukti kegiatan yang kreatif dan inovatif dalam melaksanakan pekerjaan melalui cara berfikir dan cara bertindak",
+                "bukti": "Melalui observasi dan studi dokumen:\n(1) 20% RPP/Modul Ajar yang memuat aspek keterampilan produk;\n(2) 40% RPP/Modul Ajar yang memuat aspek keterampilan produk;\n(3) 60% RPP/Modul Ajar yang memuat aspek keterampilan produk;\n(4) 80% RPP/Modul Ajar yang memuat aspek keterampilan produk.",
+                "driveLink": "https://drive.google.com/drive/folders/1PtAt4vPQg0QVNRX62xWg5B3gtRSp1u_s?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.2 Bekerja keras untuk mencapai keberhasilan madrasah sebagai organisasi pembelajaran yang efektif",
+                "indikator": "Mampu memberdayakan potensi madrasah secara optimal kedalam berbagai kegiatan-kegiatan produktif yang menguntungkan madrasah",
+                "diharapkan": "Adanya bukti kegiatan pemberdayaan potensi madrasah secara optimal kedalam berbagai kegiatan-kegiatan produktif yang menguntungkan madrasah",
+                "bukti": "Wawancara, dan studi dokumen:\n(1) dok RKM/RKT;\n(2) dok hasil kegiatan wirausaha madrasah;\n(3) dok hasil karya/kegiatan siswa;\n(4) dok laporan keuangan unit usaha madrasah",
+                "driveLink": "https://drive.google.com/drive/folders/14WBxn69Y0_mIftGYg4KEyWFa4LpRIwoj?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.2 Bekerja keras untuk mencapai keberhasilan madrasah sebagai organisasi pembelajaran yang efektif",
+                "indikator": "Mampu menumbuhkan jiwa kewirausahaan (kreatif, inovatif dan produktif) di kalangan warga madrasah",
+                "diharapkan": "Adanya bukti kegiatan yang menumbuhkan jiwa kewirausahaan (kreatif, inovatif dan produktif) di kalangan warga madrasah",
+                "bukti": "Wawancara, dan studi dokumen:\n(1) dok program kewirausahaan siswa;\n(2) dok pameran/bazar karya siswa;\n(3) dok pelatihan kewirausahaan warga madrasah;\n(4) dok partisipasi aktif warga madrasah dalam unit usaha",
+                "driveLink": "https://drive.google.com/drive/folders/1wwbRWbSLO8dcsaOB3SCGZMwcEIlEjX0H?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.2 Bekerja keras untuk mencapai keberhasilan madrasah sebagai organisasi pembelajaran yang efektif",
+                "indikator": "Mampu mencatat ide-ide baru, kemudian mengembangkannya",
+                "diharapkan": "Adanya bukti kegiatan mencatat ide-ide baru, kemudian mengembangkannya",
+                "bukti": "Melalui observasi, wawancara, dan studi dokumen:\n1) buku agenda catatan kepala madrasah;\n2) notulen rapat inventarisasi ide guru;\n3) dok MOU dengan DUDI/Mitra;\n4) dok partisipasi donatur/mitra madrasah",
+                "driveLink": "https://drive.google.com/drive/folders/1WBqg7EfD6lXJ1N8ichVjPoA4HWsPsyCV?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.3 Memiliki motivasi yang kuat untuk sukses dalam melaksanakan tugas pokok dan fungsinya sebagai pemimpin madrasah",
+                "indikator": "Bersedia belajar dari orang lain",
+                "diharapkan": "Adanya bukti kemauan belajar dari orang lain",
+                "bukti": "Melalui observasi, wawancara, dan studi dokumen:\n(1-2) dokumen/catatan studi banding / kunjungan ke tempat wirausaha/lembaga lain;\n(3-4) foto-foto dan laporan hasil kegiatan benchmarking.",
+                "driveLink": "https://drive.google.com/drive/folders/1umZuiGuusbt5RM_nOuaeykNavdhhpj7Y?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.3 Memiliki motivasi yang kuat untuk sukses dalam melaksanakan tugas pokok dan fungsinya sebagai pemimpin madrasah",
+                "indikator": "Ingin selalu melakukan yang terbaik",
+                "diharapkan": "Adanya bukti keinginan selalu melakukan yang terbaik",
+                "bukti": "Wawancara, dan studi dokumen:\n(1) dok proposal bantuan/kerjasama;\n(2) dok keikutsertaan lomba berbasis teknologi/inovasi;\n(3) dok promosi & publikasi madrasah;\n(4) prestasi dalam lomba guru, tendik dan kepala madrasah.",
+                "driveLink": "https://drive.google.com/drive/folders/18jwYHdkoUfEXaYfOaioSQzWWZ63fkNe8?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.3 Memiliki motivasi yang kuat untuk sukses dalam melaksanakan tugas pokok dan fungsinya sebagai pemimpin madrasah",
+                "indikator": "Menciptakan perubahan yang kuat",
+                "diharapkan": "Adanya bukti keinginan untuk melakukan perubahan yang kuat",
+                "bukti": "Melalui studi dokumen:\n1-2) memiliki program inovasi & wirausaha madrasah;\n3-4) dok capaian dan bukti fisik perubahan fisik/non-fisik madrasah;",
+                "driveLink": "https://drive.google.com/drive/folders/1G5LkUR2oie3k4gDz9aXzCBkyGVjKiRoC?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.4 Pantang menyerah dan selalu mencari solusi terbaik dalam menghadapi kendala yang dihadapi madrasah",
+                "indikator": "Mampu melibatkan tokoh agama, masyarakat, dan pemerintah dalam memecahkan masalah kelembagaan",
+                "diharapkan": "Adanya bukti kegiatan yang melibatkan tokoh agama, masyarakat dan pemerintah dalam memecahkan masalah kelembagaan",
+                "bukti": "Tim Pengembang Madrasah, melibatkan:\n(1) Tokoh Agama;\n(2) Tokoh masyarakat;\n(3) unsur pemerintah / aparatur setempat;\n(4) unsur DUDI/Mitra kerja;",
+                "driveLink": "https://drive.google.com/drive/folders/14NpcD8M4YUrFA11epCIZjXceOyUhR0Lq?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.4 Pantang menyerah dan selalu mencari solusi terbaik dalam menghadapi kendala yang dihadapi madrasah",
+                "indikator": "Mampu bersikap obyektif/tidak memihak dalam mengatasi konflik internal madrasah",
+                "diharapkan": "Adanya bukti kegiatan yang menunjukkan sikap obyektif/tidak memihak dalam mengatasi konflik internal madrasah",
+                "bukti": "Wawancara dan observasi, kepala madrasah:\n(1) bersikap obyektif;\n(2) Transparan;\n(3) Tanggungjawab;\n(4) profesional;",
+                "driveLink": "https://drive.google.com/drive/folders/1T_uOMXgZWdjMkPLNNUvbo0IEpORXguUY?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.4 Pantang menyerah dan selalu mencari solusi terbaik dalam menghadapi kendala yang dihadapi madrasah",
+                "indikator": "Mampu bersikap simpatik/tenggang rasa terhadap orang lain",
+                "diharapkan": "Adanya bukti sikap simpatik/tenggang rasa terhadap orang lain",
+                "bukti": "Wawancara dan observasi, kepala madrasah:\n(1) memiliki sifat sabar;\n(2) empati;\n(3) tenggang rasa;\n(4) dermawan/peduli sesama;",
+                "driveLink": "https://drive.google.com/drive/folders/1_5x4rDZaEgoIvM3O9_T3Rt1k-HNYUQby?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.5 Memiliki naluri kewirausahaan dalam mengelola kegiatan produksi/jasa madrasah sebagai sumber pembelajaran peserta didik",
+                "indikator": "Mampu merencanakan kegiatan produksi /jasa sesuai dengan potensi madrasah",
+                "diharapkan": "Dokumen perencanaan kegiatan produksi sesuai potensi madrasah",
+                "bukti": "Melalui observasi, studi dokumen:\n(1) MoU bidang wirausaha;\n(2) MoU bidang kesehatan;\n(3) MoU bidang minat bakat siswa;\n(4) MoU bidang keterampilan/produksi;",
+                "driveLink": "https://drive.google.com/drive/folders/1ghGX8DP8Po17IhuSzANmW0ylc8GluGV6?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.5 Memiliki naluri kewirausahaan dalam mengelola kegiatan produksi/jasa madrasah sebagai sumber pembelajaran peserta didik",
+                "indikator": "Mampu membina kegiatan produksi /jasa sesuai dengan prinsip-prinsip pengelolaan yang profesional dan akuntabel",
+                "diharapkan": "Adanya dokumen pembinaan kegiatan produksi /jasa sesuai dengan prinsip-prinsip pengelolaan yang profesional dan akuntabel",
+                "bukti": "Kepala madrasah mampu:\n(1) analisa peluang usaha dengan cermat;\n(2) analisa barang/jasa produksi yang tepat;\n(3) analisa potensi pemasaran;\n(4) analisa keuntungan ekonomis;",
+                "driveLink": "https://drive.google.com/drive/folders/1GUdMrYMKMUCGLfqqai_VFbHosru9FPzN?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.5 Memiliki naluri kewirausahaan dalam mengelola kegiatan produksi/jasa madrasah sebagai sumber pembelajaran peserta didik",
+                "indikator": "Mampu melaksanakan pengawasan kegiatan produksi/jasa dan menyusun laporan",
+                "diharapkan": "Adanya dokumen melaksanakan pengawasan kegiatan produksi/jasa dan menyusun laporan",
+                "bukti": "Melalui wawancara dan studi dokumen:\n(1) dok monitoring unit wirausaha yang dimiliki;\n(2) dok pemberian solusi terhadap permasalahan usaha;\n(3) dok perhitungan/pembukuan hasil usaha;\n(4) dok laporan pertanggungjawaban wirausaha",
+                "driveLink": "https://drive.google.com/drive/folders/1QLkr6pYARU89Juqzc8tCZbKuuXxo0LmD?usp=drive_link"
+            },
+            {
+                "unsur": "C. Pengembangan Kewirausahaan",
+                "sub": "3.5 Memiliki naluri kewirausahaan dalam mengelola kegiatan produksi/jasa madrasah sebagai sumber pembelajaran peserta didik",
+                "indikator": "Mampu mengembangkan kegiatan produksi/jasa dan pemasarannya",
+                "diharapkan": "Adanya dokumen pengembangan kegiatan produksi/jasa dan pemasarannya",
+                "bukti": "Madrasah memiliki:\n(1) 1 (satu) jenis usaha produksi/jasa, pemasaran internal;\n(2) 2 (dua) jenis usaha produksi/jasa, pemasaran internal;\n(3) 3 (tiga) jenis usaha produksi/jasa, pemasaran internal dan eksternal;\n(4) 4 jenis usaha produksi/jasa, pemasaran internal dan eksternal;",
+                "driveLink": "https://drive.google.com/drive/folders/1B-_3ULxWwmoubITNPJ-u19JXKOeMxsox?usp=drive_link"
+            },
+
+            // ==================== UNSUR D ====================
+            {
+                "unsur": "D. Supervisi Kepada Guru dan Tenaga Kependidikan",
+                "sub": "4.1 Menyusun program supervisi akademik dalam rangka peningkatan profesionalisme guru",
+                "indikator": "Mengidentifikasi masalah yang guru hadapi dalam pelaksanaan pembelajaran.",
+                "diharapkan": "Terdapat rumusan masalah yang Kepala Madrasah peroleh dari pemantauan perencanaan, pelaksanaan, dan penilaian pembelajaran.",
+                "bukti": "Melalui studi dokumen:\n(1) program supervisi pembelajaran;\n(2) jadwal pelaksanaan supervisi;\n(3) Instrumen supervisi;\n(4) Temuan hasil supervisi sebelumnya;",
+                "driveLink": "https://drive.google.com/drive/folders/1jTPYGOVJM-EhSQoevDKBPE3c4U-zIULr?usp=drive_link"
+            },
+            {
+                "unsur": "D. Supervisi Kepada Guru dan Tenaga Kependidikan",
+                "sub": "4.1 Menyusun program supervisi akademik dalam rangka peningkatan profesionalisme guru",
+                "indikator": "Mampu merumuskan tujuan yang dilengkapi dengan target pencapaian yang terukur.",
+                "diharapkan": "Terdapat rumusan tujuan supervisi yang dilengkapi dengan target pencapaian yang terukur.",
+                "bukti": "Melalui studi dokumen:\n(1) 25% Instrumen supervisi memiliki indikator terukur;\n(2) 50% Instrumen supervisi memiliki indikator terukur;\n(3) 75% Instrumen supervisi memiliki indikator terukur;\n(4) 100% Instrumen supervisi memiliki indikator terukur;",
+                "driveLink": "https://drive.google.com/drive/folders/1QHXzsUWGvpHmicg9KEWOu4jSu5Syal2U?usp=drive_link"
+            },
+            {
+                "unsur": "D. Supervisi Kepada Guru dan Tenaga Kependidikan",
+                "sub": "4.1 Menyusun program supervisi akademik dalam rangka peningkatan profesionalisme guru",
+                "indikator": "Mampu mengembangkan instrumen supervisi.",
+                "diharapkan": "Instrumen yang digunakan relevan dengan target indikator pencapaian tujuan madrasah.",
+                "bukti": "Melalui studi dokumen:\n(1) 25% indikator Instrumen supervisi sesuai tujuan madrasah;\n(2) 50% indikator Instrumen supervisi sesuai tujuan madrasah;\n(3) 75% indikator Instrumen supervisi sesuai tujuan madrasah;\n(4) 100% indikator Instrumen supervisi sesuai tujuan madrasah;",
+                "driveLink": "https://drive.google.com/drive/folders/1Nkam_Meu9oCvATyk9Eu3yMzpufL5VSXM?usp=drive_link"
+            },
+            {
+                "unsur": "D. Supervisi Kepada Guru dan Tenaga Kependidikan",
+                "sub": "4.2 Melaksanakan supervisi akademik terhadap guru dengan menggunakan pendekatan dan teknik supervisi yang tepat.",
+                "indikator": "Mengadakan pertemuan awal untuk menjaring data rencana pembelajaran dan menetapkan fokus kegiatan supervisi.",
+                "diharapkan": "Terdapat data hasil pertemuan awal seperti; masalah, tujuan, fokus utama supervisi, dan instrumen yang disepakati",
+                "bukti": "Temu awal supervisi, dilakukan kepala madrasah terhadap:\n(1) 25% guru;\n(2) 50% guru;\n(3) 75% guru;\n(4) 100% guru;",
+                "driveLink": "https://drive.google.com/drive/folders/1Nap0_SW-cKTj6FlVPbIR4aITu-yLAqcB?usp=drive_link"
+            },
+            {
+                "unsur": "D. Supervisi Kepada Guru dan Tenaga Kependidikan",
+                "sub": "4.2 Melaksanakan supervisi akademik terhadap guru dengan menggunakan pendekatan dan teknik supervisi yang tepat.",
+                "indikator": "Melaksanakan kegiatan pemantauan pembelajaran dan membuat catatan yang objektif dan selektif sebagai bahan pemecahan masalah supervisi.",
+                "diharapkan": "Dokumen hasil observasi pembelajaran, lengkap, objektif dan selektif serta relevan dengan masalah yang menjadi fokus supervisi.",
+                "bukti": "Kepala madrasah melakukan supervisi akademik terhadap:\n(1) 25% guru;\n(2) 50% guru;\n(3) 75% guru;\n(4) 100% guru;",
+                "driveLink": "https://drive.google.com/drive/folders/1QXzmRNtGVzSlduRcYfwpkYR_YlLOHjCX?usp=drive_link"
+            },
+            {
+                "unsur": "D. Supervisi Kepada Guru dan Tenaga Kependidikan",
+                "sub": "4.2 Melaksanakan supervisi akademik terhadap guru dengan menggunakan pendekatan dan teknik supervisi yang tepat.",
+                "indikator": "Melakukan pertemuan refleksi, menganalisis catatan hasil observasi, dan menyimpulkan hasil observasi",
+                "diharapkan": "Dokumen catatan pelaksanaan kegiatan, melaksanakan refleksi, himpunan data hasil supervisi, analisis data, penafsiran, penilaian keunggulan dan kelemahan, serta rekomendasi perbaikan.",
+                "bukti": "Kepala madrasah menerbitkan Raport/Catatan Kinerja guru terhadap:\n(1) 25% guru;\n(2) 50% guru;\n(3) 75% guru;\n(4) 100% guru;",
+                "driveLink": "https://drive.google.com/drive/folders/1uXI6fxPd5zPv1hZSivvpFXlFZFM5zytK?usp=drive_link"
+            },
+            {
+                "unsur": "D. Supervisi Kepada Guru dan Tenaga Kependidikan",
+                "sub": "4.2 Melaksanakan supervisi akademik terhadap guru dengan menggunakan pendekatan dan teknik supervisi yang tepat.",
+                "indikator": "Bersama guru menyusun rekomendasi tindak lanjut perbaikan dalam bentuk kegiatan analisis butir soal, remedial, dan pengayaan.",
+                "diharapkan": "Data tindak lanjut pelaksanaan supervisi penilaian, bukti analisis butir soal, kegiatan remedial dan pengayaan.",
+                "bukti": "Kepala madrasah melakukan:\n(1-2) analisa kinerja guru;\n(3-4) menyusun tindak lanjut/rekomendasi kinerja guru;",
+                "driveLink": "https://drive.google.com/drive/folders/1qsHYb3EUNFDSH7fRpXQUy0Aysa_4F59K?usp=drive_link"
+            },
+            {
+                "unsur": "D. Supervisi Kepada Guru dan Tenaga Kependidikan",
+                "sub": "4.3 Menilai dan menindaklanjuti kegiatan supervisi akademik dalam rangka peningkatan profesionalisme guru.",
+                "indikator": "Memfasilitasi guru dalam merencanakan tindak lanjut perbaikan sistem penilaian hasil belajar.",
+                "diharapkan": "Terdapat bukti tindak lanjut perbaikan sistem penilaian hasil belajar",
+                "bukti": "Kepala madrasah memfasilitasi guru untuk memenuhi rekomendasi terhadap:\n(1) 25% guru;\n(2) 50% guru;\n(3) 75% guru;\n(4) 100% guru;",
+                "driveLink": "https://drive.google.com/drive/folders/1YbYg2X-5biSLp1e7CmDaPBR32zW4Y3jY?usp=drive_link"
+            },
+            {
+                "unsur": "D. Supervisi Kepada Guru dan Tenaga Kependidikan",
+                "sub": "4.3 Menilai dan menindaklanjuti kegiatan supervisi akademik dalam rangka peningkatan profesionalisme guru.",
+                "indikator": "Mengecek ulang keterlaksanaan rekomendasi oleh guru",
+                "diharapkan": "Dokumen rekomendasi perbaikan sistem penilaian hasil belajar secara berkala.",
+                "bukti": "Kepala madrasah memantau guru dalam memenuhi rekomendasi hasil supervisi, kepada:\n(1) 25% guru;\n(2) 50% guru;\n(3) 75% guru;\n(4) 100% guru;",
+                "driveLink": "https://drive.google.com/drive/folders/1ntvwQ1ltHtiNT2TmOvqZrJQOMbl6nj_K?usp=drive_link"
+            },
+            {
+                "unsur": "D. Supervisi Kepada Guru dan Tenaga Kependidikan",
+                "sub": "4.3 Menilai dan menindaklanjuti kegiatan supervisi akademik dalam rangka peningkatan profesionalisme guru.",
+                "indikator": "Melaksanakan pembinaan dan pengembangan guru sebagai tindak lanjut kegiatan supervisi.",
+                "diharapkan": "Terdapat bukti, berupa laporan tindak lanjut hasil supervisi sebagai dasar pelaksanaan pembinaan guru.",
+                "bukti": "Tindak lanjut supervisi dengan:\n(1) pemberian contoh;\n(2) pemberian contoh dan konsultasi;\n(3) pemberian contoh, konsultasi dan diskusi;\n(4) pemberian contoh, konsultasi, diskusi dan pelatihan;",
+                "driveLink": "https://drive.google.com/drive/folders/1vx__4b7PrSsb1NxZMcQ5kH9K8pyUEfvN?usp=drive_link"
+            },
+            {
+                "unsur": "D. Supervisi Kepada Guru dan Tenaga Kependidikan",
+                "sub": "4.3 Menilai dan menindaklanjuti kegiatan supervisi akademik dalam rangka peningkatan profesionalisme guru.",
+                "indikator": "Menggunakan data hasil supervisi untuk pemetaan ketercapaian program sebagai dasar perbaikan siklus berikutnya.",
+                "diharapkan": "Hasil supervisi keterlaksanaan dan ketercapaian program sebagai bahan penilaian kinerja dan pemetaan profil madrasah sebagai dasar perencanaan siklus berikutnya.",
+                "bukti": "Hasil supervisi digunakan untuk:\n(1) menilai guru;\n(2) menilai dan pemetaan;\n(3) menilai, pemetaan dan dasar pemberian tugas guru;\n(4) menilai, pemetaan, sebagai dasar pemberian tugas guru dan pemberian reward atau punishment guru;",
+                "driveLink": "https://drive.google.com/drive/folders/1rx53OsBSdIam9LDbTQeIm7quXll1Xr4T?usp=drive_link"
+            },
+
+            // ==================== UNSUR E ====================
+            {
+                "unsur": "E. Hasil Kinerja Kepala Madrasah",
+                "sub": "5.1 Prestasi peserta didik",
+                "indikator": "Prestasi akademik peserta didik",
+                "diharapkan": "Terdapat prestasi akademik peserta didik pada berbagai tingkat",
+                "bukti": "Prestasi akademik pesdik:\n(1) memiliki 1 kejuaraan Tk. Kec.\n(2) memiliki 1 atau 2 kejuaraan Tk. Kab\n(3) memiliki 3 kejuaraan Tk. Prov\n(4) memiliki lebih dari 3 kejuaraan Tk Prov atau 1 kejuaraan Tk. Nasional",
+                "driveLink": "https://drive.google.com/drive/folders/1-sMLEvIGkvP8fGQxfh_n84R7q5X1MhVy?usp=drive_link"
+            },
+            {
+                "unsur": "E. Hasil Kinerja Kepala Madrasah",
+                "sub": "5.1 Prestasi peserta didik",
+                "indikator": "Prestasi non akademik peserta didik",
+                "diharapkan": "Terdapat prestasi non akademik peserta didik pada berbagai tingkat",
+                "bukti": "Prestasi non akademik pesdik:\n(1) memiliki 1 kejuaraan Tk. Kec.\n(2) memiliki 1 atau 2 kejuaraan Tk. Kab\n(3) memiliki 3 kejuaraan Tk. Prov\n(4) memiliki lebih dari 3 kejuaraan Tk Prov atau 1 kejuaraan Tk. Nasional",
+                "driveLink": "https://drive.google.com/drive/folders/1v7kPlu0BBq0BlqIbVSRjW0-JNjjkHCLk?usp=drive_link"
+            },
+            {
+                "unsur": "E. Hasil Kinerja Kepala Madrasah",
+                "sub": "5.2 Prestasi Pendidik dan Tenaga Kependidikan",
+                "indikator": "Prestasi akademik pendidik dan tenaga kependidikan",
+                "diharapkan": "Terdapat prestasi akademik pendidik dan tenaga kependidikan pada berbagai tingkat",
+                "bukti": "Prestasi akademik PTK:\n(1) memiliki 1 kejuaraan Tk. Kec.\n(2) memiliki 1 atau 2 kejuaraan Tk. Kab\n(3) memiliki 3 kejuaraan Tk. Prov\n(4) memiliki lebih dari 3 kejuaraan Tk Prov atau 1 kejuaraan Tk. Nasional",
+                "driveLink": "https://drive.google.com/drive/folders/1GL5RD3-kTqCxBCgrsvPYCL8rD0UOuPZg?usp=drive_link"
+            },
+            {
+                "unsur": "E. Hasil Kinerja Kepala Madrasah",
+                "sub": "5.2 Prestasi Pendidik dan Tenaga Kependidikan",
+                "indikator": "Prestasi non akademik pendidik dan tenaga kependidikan",
+                "diharapkan": "Terdapat prestasi non akademik pendidik dan tenaga kependidikan pada berbagai tingkat",
+                "bukti": "Prestasi non akademik PTK:\n(1) memiliki 1 kejuaraan Tk. Kec\n(2) memiliki 1 atau 2 kejuaraan Tk. Kab\n(3) memiliki 3 kejuaraan Tk. Prov\n(4) memiliki lebih dari 3 kejuaraan Tk Prov atau 1 kejuaraan Tk. Nasional",
+                "driveLink": "https://drive.google.com/drive/folders/1UkOSGi_PfyOvpvcs-HEG4F6hmebTlYWR?usp=drive_link"
+            },
+            {
+                "unsur": "E. Hasil Kinerja Kepala Madrasah",
+                "sub": "5.3 Prestasi Madrasah",
+                "indikator": "Kelebihan prestasi akademik dari madrasah/sekolah lainnya",
+                "diharapkan": "Terdapat bukti keunggulan prestasi akademik madrasah",
+                "bukti": "Prestasi akademik madrasah:\n(1) peringkat 5 besar Tk. Kec\n(2) peringkat 5 besar Tk. Kab\n(3) peringkat 5 besar Tk. Prov\n(4) peringkat 5 besar Tk. Nasional",
+                "driveLink": "https://drive.google.com/drive/folders/1ZkG0LYTgGN03r7zpibhkJ34-8DIFCosh?usp=drive_link"
+            },
+            {
+                "unsur": "E. Hasil Kinerja Kepala Madrasah",
+                "sub": "5.3 Prestasi Madrasah",
+                "indikator": "Kelebihan prestasi non akademik dari madrasah/sekolah lainnya",
+                "diharapkan": "Terdapat bukti keunggulan prestasi non akademik madrasah",
+                "bukti": "Prestasi non akademik madrasah:\n(1) peringkat 5 besar Tk. Kec\n(2) peringkat 5 besar Tk. Kab\n(3) peringkat 5 besar Tk. Prov\n(4) peringkat 5 besar Tk. Nasional",
+                "driveLink": "https://drive.google.com/drive/folders/1Ek0VblXxExjp0wiE7HaIsFxrA3WV32gI?usp=drive_link"
+            },
+            {
+                "unsur": "E. Hasil Kinerja Kepala Madrasah",
+                "sub": "5.4 Prestasi Kepala Madrasah",
+                "indikator": "Ijazah yang dimiliki kepala madrasah",
+                "diharapkan": "Terdapat bukti ijazah kepala madrasah",
+                "bukti": "Ijazah kepala madrasah:\n(1) sampai dengan S1\n(2) sampai dengan S2\n(3) sampai dengan S3 dalam negeri\n(4) sampai dengan S3 luar negeri",
+                "driveLink": "https://drive.google.com/drive/folders/1QqaIZvygolvuwGP-XbKQzJ_KMB0C57Ar?usp=drive_link"
+            },
+            {
+                "unsur": "E. Hasil Kinerja Kepala Madrasah",
+                "sub": "5.4 Prestasi Kepala Madrasah",
+                "indikator": "Pendidikan dan pelatihan yang pernah diikuti oleh kepala madrasah",
+                "diharapkan": "Terdapat bukti keikutsertaan dalam diklat",
+                "bukti": "Diklat pernah diikuti kepala madrasah:\n(1) minimal 3 STTPL Tk. Kab\n(2) lebih dari 3 STTPL Tk. Kab\n(3) minimal 3 STTPL Tk. Prov\n(4) lebih dari 3 STTPL Tk. Prov",
+                "driveLink": "https://drive.google.com/drive/folders/1B8PpumhlH2Uz5xrmUpRhz5C2aKqcFwTr?usp=drive_link"
+            },
+            {
+                "unsur": "E. Hasil Kinerja Kepala Madrasah",
+                "sub": "5.4 Prestasi Kepala Madrasah",
+                "indikator": "Penguasaan ICT kepala madrasah",
+                "diharapkan": "Terdapat bukti penguasaan ICT",
+                "bukti": "Penguasaan ICT kepala madrasah:\n(1) menguasai min 1 prog microsoft office atau sejenis\n(2) menguasai min 2 prog microsoft office atau sejenis\n(3) menguasai semua prog microsoft office atau sejenis\n(4) menguasai semua prog microsoft office atau sejenis dan internet",
+                "driveLink": "https://drive.google.com/drive/folders/1-UkUZ85yM0zQOHdiqu9wAcbygfE5pqLh?usp=drive_link"
+            },
+            {
+                "unsur": "E. Hasil Kinerja Kepala Madrasah",
+                "sub": "5.4 Prestasi Kepala Madrasah",
+                "indikator": "Prestasi yang diraih oleh kepala madrasah",
+                "diharapkan": "Terdapat bukti prestasi kepala madrasah",
+                "bukti": "Prestasi diraih kepala madrasah:\n(1) meraih 10 besar Tk. Kec\n(2) meraih 10 besar Tk. Kab\n(3) meraih 10 besar Tk. Prov\n(4) meraih 10 besar Tk. Nasional",
+                "driveLink": "https://drive.google.com/drive/folders/1ImoHSY0DHuFliTPdRdATNxB08uzTmxBN?usp=drive_link"
+            },
+            {
+                "unsur": "E. Hasil Kinerja Kepala Madrasah",
+                "sub": "5.4 Prestasi Kepala Madrasah",
+                "indikator": "Kegiatan penelitian kependidikan yang telah dilakukan oleh kepala madrasah",
+                "diharapkan": "Terdapat bukti karya penelitian kependidikan",
+                "bukti": "Penelitian kependidikan kepala madrasah:\n(1) telah melakukan 1 kali penelitian\n(2) telah melakukan 2 kali penelitian\n(3) telah melakukan 3 kali penelitian\n(4) telah melakukan 4 kali penelitian",
+                "driveLink": "https://drive.google.com/drive/folders/1wIw7_AjG3W_0XS_YjiBuYW3jCW4pT3NV?usp=drive_link"
+            },
+            {
+                "unsur": "E. Hasil Kinerja Kepala Madrasah",
+                "sub": "5.4 Prestasi Kepala Madrasah",
+                "indikator": "Kegiatan pelibatan komite dalam mendukung program madrasah",
+                "diharapkan": "Terdapat bukti pelibatan komite madrasah dalam mendukung program madrasah",
+                "bukti": "Pelibatan komite dalam prog madrasah:\n(1) tidak melibatkan komite\n(2) melibatkan komite tapi kurang berperan\n(3) melibatkan komite dengan peran cukup\n(4) melibatkan komite dengan peran sangat baik",
+                "driveLink": "https://drive.google.com/drive/folders/1tv5dpr8oriuDnjGuuTZSnAtCmIX79-XO?usp=drive_link"
+            },
+            {
+                "unsur": "E. Hasil Kinerja Kepala Madrasah",
+                "sub": "5.4 Prestasi Kepala Madrasah",
+                "indikator": "Kegiatan kemitraan dengan stakeholder pendidikan dalam meningkatkan kompetensi guru madrasah.",
+                "diharapkan": "Terdapat bukti kerjasama kemitraan untuk peningkatan kompetensi guru madrasah",
+                "bukti": "Keg kemitraan dengan stakeholder pendidikan dalam meningkatkan kompetensi guru madrasah:\n(1) belum melibatkan stakeholder pend\n(2) kurang melibatkan stakeholder pend\n(3) cukup melibatkan stakeholder pend\n(4) sangat melibatkan stakeholder pend",
+                "driveLink": "https://drive.google.com/drive/folders/1Y9c3xiPU9BAAf6SsyyVdjMiAHYPUh3r-?usp=drive_link"
+            }
+        ];
+
+        const SUPPORTED_YEARS = ['2025', '2026', '2027', '2028'];
+
+        function App() {
+            const [selectedYear, setSelectedYear] = useState('2025');
+            const [activeTab, setActiveTab] = useState('dashboard');
+            const [searchQuery, setSearchQuery] = useState('');
+            const [selectedUnsur, setSelectedUnsur] = useState('ALL');
+            const [showUploadModal, setShowUploadModal] = useState(false);
+            const [toast, setToast] = useState('');
+            const [selectedItemForUpload, setSelectedItemForUpload] = useState(null);
+
+            // Dynamic State per Year
+            const [yearData, setYearData] = useState(() => {
+                const saved = localStorage.getItem('pkkm_multiyear_revised_full_data_v2');
+                if (saved) {
+                    try { 
+                        const parsed = JSON.parse(saved);
+                        if (parsed && parsed['2025'] && parsed['2025'].length >= baseInstruments.length) {
+                            return parsed; 
+                        }
+                    } catch(e) {}
+                }
+                const initial = {};
+                SUPPORTED_YEARS.forEach(yr => {
+                    initial[yr] = baseInstruments.map((item, idx) => ({
+                        id: idx + 1,
+                        unsur: item.unsur || 'A. Usaha Pengembangan Madrasah',
+                        sub: item.sub || 'Umum',
+                        indikator: item.indikator,
+                        diharapkan: item.diharapkan,
+                        bukti: item.bukti,
+                        skor: 4,
+                        status: 'Terverifikasi',
+                        dokumen: `Bukti_PKKM_${yr}_Indikator_${idx+1}.pdf`,
+                        driveLink: item.driveLink || DRIVE_FOLDER_URL,
+                        uploadDate: null
+                    }));
+                });
+                return initial;
+            });
+
+            // Persist data
+            useEffect(() => {
+                localStorage.setItem('pkkm_multiyear_revised_full_data_v2', JSON.stringify(yearData));
+            }, [yearData]);
+
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            });
+
+            const showNotification = (msg) => {
+                setToast(msg);
+                setTimeout(() => setToast(''), 3500);
+            };
+
+            const currentItems = useMemo(() => {
+                return yearData[selectedYear] || [];
+            }, [yearData, selectedYear]);
+
+            const handleScoreChange = (id, newScore) => {
+                setYearData(prev => ({
+                    ...prev,
+                    [selectedYear]: prev[selectedYear].map(item => 
+                        item.id === id ? { ...item, skor: parseInt(newScore) } : item
+                    )
+                }));
+                showNotification(`Skor indikator tahun ${selectedYear} diperbarui!`);
+            };
+
+            const handleSaveFileUpload = (fileName, customLink) => {
+                const targetId = selectedItemForUpload ? selectedItemForUpload.id : 1;
+                const dateStr = new Date().toLocaleDateString('id-ID');
+                
+                setYearData(prev => ({
+                    ...prev,
+                    [selectedYear]: prev[selectedYear].map(item => 
+                        item.id === targetId ? {
+                            ...item,
+                            dokumen: fileName || `Bukti_Fisik_PKKM_${selectedYear}_Indikator_${item.id}.pdf`,
+                            status: 'Terverifikasi',
+                            uploadDate: dateStr,
+                            driveLink: customLink || item.driveLink || DRIVE_FOLDER_URL
+                        } : item
+                    )
+                }));
+
+                setShowUploadModal(false);
+                setSelectedItemForUpload(null);
+                showNotification(`Dokumen berhasil terhubung dengan Google Drive MTs Al Fatah Talun!`);
+            };
+
+            const filteredItems = useMemo(() => {
+                return currentItems.filter(item => {
+                    const matchSearch = item.indikator.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                        item.bukti.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                        item.sub.toLowerCase().includes(searchQuery.toLowerCase());
+                    const matchUnsur = selectedUnsur === 'ALL' || item.unsur.startsWith(selectedUnsur);
+                    return matchSearch && matchUnsur;
+                });
+            }, [currentItems, searchQuery, selectedUnsur]);
+
+            const stats = useMemo(() => {
+                const total = currentItems.length;
+                const verified = currentItems.filter(i => i.status === 'Terverifikasi').length;
+                const review = currentItems.filter(i => i.status === 'Dalam Review').length;
+                const pending = currentItems.filter(i => i.status === 'Belum Diunggah').length;
+                const avgScore = total > 0 ? (currentItems.reduce((acc, i) => acc + i.skor, 0) / total).toFixed(2) : '0.00';
+                return { total, verified, review, pending, avgScore };
+            }, [currentItems]);
+
+            return (
+                <div class="min-h-screen flex flex-col bg-slate-50">
+                    {/* Toast Notification */}
+                    {toast && (
+                        <div class="fixed top-5 right-5 z-50 bg-emerald-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-emerald-600 transition-all duration-300">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-amber-400"></i>
+                            <span class="text-sm font-medium">{toast}</span>
+                        </div>
+                    )}
+
+                    {/* Top Navigation Bar */}
+                    <header class="bg-gradient-to-r from-emerald-950 via-emerald-900 to-teal-950 text-white shadow-xl sticky top-0 z-40 border-b border-emerald-800/50">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div class="flex items-center justify-between h-20">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 to-emerald-400 p-0.5 shadow-lg">
+                                        <div class="w-full h-full bg-emerald-950 rounded-[14px] flex items-center justify-center font-extrabold text-amber-400 text-xl border border-emerald-700/50">
+                                            M
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <h1 class="font-extrabold text-lg tracking-wide text-white">SI-PKKM Multi-Tahun</h1>
+                                            <span class="bg-amber-500/20 text-amber-300 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-amber-500/30">Lengkap A-E</span>
+                                        </div>
+                                        <p class="text-xs text-emerald-200/80">MTs Al Fatah Talun • Kepala: Imam Mahmudi, M.Pd</p>
+                                    </div>
+                                </div>
+
+                                {/* Year Selector & Navigation */}
+                                <div class="flex items-center gap-4">
+                                    <div class="bg-emerald-950/80 p-1.5 rounded-2xl border border-emerald-700/60 flex items-center gap-1">
+                                        <span class="text-xs font-semibold px-2 text-emerald-300 flex items-center gap-1">
+                                            <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-400"></i> Tahun:
+                                        </span>
+                                        {SUPPORTED_YEARS.map(yr => (
+                                            <button
+                                                key={yr}
+                                                onClick={() => setSelectedYear(yr)}
+                                                class={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                                                    selectedYear === yr 
+                                                        ? 'bg-amber-400 text-slate-950 shadow-md scale-105' 
+                                                        : 'text-emerald-200 hover:bg-emerald-800/60 hover:text-white'
+                                                }`}
+                                            >
+                                                {yr}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <div class="hidden lg:flex items-center space-x-1">
+                                        {[
+                                            { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
+                                            { id: 'instrumen', label: 'Instrumen PKKM (A-E)', icon: 'file-spreadsheet' },
+                                            { id: 'laporan', label: 'Laporan & Hasil', icon: 'award' }
+                                        ].map(tab => (
+                                            <button
+                                                key={tab.id}
+                                                onClick={() => setActiveTab(tab.id)}
+                                                class={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition-all ${
+                                                    activeTab === tab.id 
+                                                        ? 'bg-emerald-800/80 text-amber-300 shadow-inner border border-emerald-600/50' 
+                                                        : 'text-emerald-100 hover:bg-emerald-800/60 hover:text-white'
+                                                }`}
+                                            >
+                                                <i data-lucide={tab.icon} class="w-3.5 h-3.5"></i>
+                                                {tab.label}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {/* Link Utama Folder Drive */}
+                                    <a 
+                                        href={DRIVE_FOLDER_URL} 
+                                        target="_blank" 
+                                        rel="noreferrer"
+                                        class="bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-bold px-3 py-2 rounded-xl text-xs border border-emerald-600 shadow-md flex items-center gap-1.5 transition-all"
+                                        title="Buka Folder Google Drive Utama PKKM"
+                                    >
+                                        <i data-lucide="folder-git-2" class="w-4 h-4 text-amber-400"></i>
+                                        <span class="hidden xl:inline">Folder Drive Utama</span>
+                                    </a>
+
+                                    <button 
+                                        onClick={() => setShowUploadModal(true)}
+                                        class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs shadow-lg shadow-amber-500/20 flex items-center gap-2 transition-all active:scale-95"
+                                    >
+                                        <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+                                        <span class="hidden sm:inline">Unggah Berkas</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Google Drive Account Banner */}
+                    <div class="bg-emerald-950 border-b border-emerald-800/60 text-emerald-200 text-xs py-2 px-4">
+                        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-emerald-800 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 border border-emerald-600">
+                                    <i data-lucide="hard-drive" class="w-3 h-3 text-amber-400"></i> Google Drive Terhubung
+                                </span>
+                                <a href={DRIVE_FOLDER_URL} target="_blank" rel="noreferrer" class="font-mono text-emerald-300 font-semibold hover:underline flex items-center gap-1">
+                                    Folder Bukti Dukung PKKM Utama <i data-lucide="external-link" class="w-3 h-3 text-amber-400"></i>
+                                </a>
+                            </div>
+                            <div class="flex items-center gap-4 text-emerald-300">
+                                <span>Status Data: <b class="text-amber-400">Instrumen Lengkap (A, B, C, D, E) + Link Drive Presisi</b></span>
+                                <span>Tahun: <b class="text-amber-400">{selectedYear}</b></span>
+                                <span>Satuan: <b>MTs Al Fatah Talun</b></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Main Content */}
+                    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        {/* DASHBOARD TAB */}
+                        {activeTab === 'dashboard' && (
+                            <div class="space-y-8">
+                                {/* Banner */}
+                                <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white p-8 shadow-xl border border-emerald-700/50">
+                                    <div class="relative z-10 max-w-3xl">
+                                        <div class="flex items-center gap-2 mb-3">
+                                            <span class="bg-amber-400/20 text-amber-300 text-xs font-bold px-3 py-1 rounded-full border border-amber-400/30">
+                                                Penilaian Kinerja Tahun {selectedYear}
+                                            </span>
+                                            <span class="bg-emerald-950/80 text-emerald-200 text-xs px-3 py-1 rounded-full border border-emerald-700">
+                                                MTs Al Fatah Talun
+                                            </span>
+                                        </div>
+                                        <h2 class="text-3xl font-extrabold tracking-tight">Sistem Berkas PKKM Multi-Tahun (Integrasi Drive Sempurna)</h2>
+                                        <p class="mt-2 text-emerald-100 text-sm leading-relaxed">
+                                            Portal pengelolaan bukti fisik PKKM 1-Tahunan & 4-Tahunan (2025–2028). Setiap indikator dari <b>Komponen A, B, C, D, dan E</b> kini telah terhubung ke masing-masing <b>Folder Drive Spesifik Dokumen Pendukung MTs Al Fatah Talun</b> secara presisi.
+                                        </p>
+                                        <div class="mt-6 flex flex-wrap gap-3">
+                                            <button onClick={() => setActiveTab('instrumen')} class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs transition-all shadow-md flex items-center gap-2">
+                                                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Kelola Instrumen PKKM Lengkap
+                                            </button>
+                                            <a href={DRIVE_FOLDER_URL} target="_blank" rel="noreferrer" class="bg-emerald-950 hover:bg-emerald-900 text-white font-semibold px-5 py-2.5 rounded-xl text-xs border border-emerald-700 transition-all flex items-center gap-2">
+                                                <i data-lucide="folder-open" class="w-4 h-4 text-amber-400"></i> Buka Folder Google Drive Utama
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Multi-Year Fast Switcher Cards (2025 - 2028) */}
+                                <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm">
+                                    <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center justify-between">
+                                        <span class="flex items-center gap-2">
+                                            <i data-lucide="calendar-range" class="w-4 h-4 text-emerald-700"></i>
+                                            Pilih Tahun Anggaran Penilaian PKKM (2025 - 2028)
+                                        </span>
+                                        <span class="text-xs text-slate-500 font-normal">Tersimpan otomatis per tahun</span>
+                                    </h3>
+                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                        {SUPPORTED_YEARS.map(yr => {
+                                            const yearItems = yearData[yr] || [];
+                                            const total = yearItems.length;
+                                            const verified = yearItems.filter(i => i.status === 'Terverifikasi').length;
+                                            const score = total > 0 ? (yearItems.reduce((acc, i) => acc + i.skor, 0) / total).toFixed(2) : '0.00';
+                                            const isActive = selectedYear === yr;
+
+                                            return (
+                                                <div 
+                                                    key={yr}
+                                                    onClick={() => setSelectedYear(yr)}
+                                                    class={`p-5 rounded-2xl border transition-all cursor-pointer relative overflow-hidden ${
+                                                        isActive 
+                                                            ? 'bg-gradient-to-br from-emerald-900 to-teal-900 text-white border-emerald-700 shadow-lg scale-102 ring-2 ring-amber-400/50' 
+                                                            : 'bg-slate-50 text-slate-800 border-slate-200 hover:bg-emerald-50/50 hover:border-emerald-300'
+                                                    }`}
+                                                >
+                                                    <div class="flex justify-between items-center mb-3">
+                                                        <span class={`text-base font-extrabold px-2.5 py-0.5 rounded-lg ${isActive ? 'bg-amber-400 text-slate-950' : 'bg-slate-200 text-slate-700'}`}>
+                                                            Tahun {yr}
+                                                        </span>
+                                                        <span class={`text-[10px] font-bold ${isActive ? 'text-emerald-200' : 'text-slate-400'}`}>
+                                                            {verified}/{total} Dokumen
+                                                        </span>
+                                                    </div>
+                                                    <p class={`text-2xl font-black mt-1 ${isActive ? 'text-amber-300' : 'text-emerald-800'}`}>{score} <span class="text-xs font-normal opacity-75">/ 4.00</span></p>
+                                                    <p class={`text-[11px] mt-2 font-medium ${isActive ? 'text-emerald-200' : 'text-slate-500'}`}>
+                                                        {verified === total ? 'Selesai 100%' : `${Math.round((verified/total)*100)}% Bukti Terunggah`}
+                                                    </p>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Stat Cards */}
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Indikator (A - E)</p>
+                                                <h3 class="text-3xl font-extrabold text-slate-800 mt-1">{stats.total}</h3>
+                                            </div>
+                                            <div class="w-12 h-12 bg-emerald-50 text-emerald-700 rounded-2xl flex items-center justify-center font-bold">
+                                                <i data-lucide="list-checks" class="w-6 h-6"></i>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-slate-500 mt-4 flex items-center gap-1">
+                                            <span class="text-emerald-600 font-bold">100% Lengkap</span> 108/108 Indikator
+                                        </p>
+                                    </div>
+
+                                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Terhubung ke Drive</p>
+                                                <h3 class="text-3xl font-extrabold text-emerald-600 mt-1">{stats.verified}</h3>
+                                            </div>
+                                            <div class="w-12 h-12 bg-emerald-100 text-emerald-800 rounded-2xl flex items-center justify-center font-bold">
+                                                <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-slate-500 mt-4">
+                                            Tersimpan di Google Drive Presisi
+                                        </p>
+                                    </div>
+
+                                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Dalam Review</p>
+                                                <h3 class="text-3xl font-extrabold text-amber-500 mt-1">{stats.review}</h3>
+                                            </div>
+                                            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center font-bold">
+                                                <i data-lucide="clock" class="w-6 h-6"></i>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-slate-500 mt-4">Menunggu validasi Pengawas</p>
+                                    </div>
+
+                                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Rata-Rata Skor</p>
+                                                <h3 class="text-3xl font-extrabold text-emerald-800 mt-1">{stats.avgScore}</h3>
+                                            </div>
+                                            <div class="w-12 h-12 bg-emerald-950 text-amber-400 rounded-2xl flex items-center justify-center font-bold">
+                                                <i data-lucide="award" class="w-6 h-6"></i>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-emerald-700 font-bold mt-4">Predikat Kinerja: Sangat Baik</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* INSTRUMEN TAB */}
+                        {activeTab === 'instrumen' && (
+                            <div class="space-y-6">
+                                {/* Controls */}
+                                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-center">
+                                    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                                        <span class="text-xs font-bold text-emerald-900 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200">
+                                            Tahun {selectedYear}
+                                        </span>
+                                        <div class="relative w-full md:w-80">
+                                            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
+                                            <input
+                                                type="text"
+                                                placeholder="Cari indikator, sub-unsur, atau bukti..."
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                                        <label class="text-xs font-semibold text-slate-600">Filter Komponen:</label>
+                                        <select
+                                            value={selectedUnsur}
+                                            onChange={(e) => setSelectedUnsur(e.target.value)}
+                                            class="bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                        >
+                                            <option value="ALL">Semua Komponen (A, B, C, D, E)</option>
+                                            <option value="A">Komponen A - Usaha Pengembangan Madrasah</option>
+                                            <option value="B">Komponen B - Pelaksanaan Tugas Manajerial</option>
+                                            <option value="C">Komponen C - Pengembangan Kewirausahaan</option>
+                                            <option value="D">Komponen D - Supervisi Kepada GTK</option>
+                                            <option value="E">Komponen E - Hasil Kinerja Kepala Madrasah</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Table */}
+                                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                                    <div class="p-4 bg-slate-100/70 border-b border-slate-200 flex justify-between items-center text-xs font-semibold text-slate-600">
+                                        <span>Menampilkan <b>{filteredItems.length}</b> dari total <b>{currentItems.length}</b> Indikator PKKM</span>
+                                        <span>Status: Link Drive Presisi Terpasang</span>
+                                    </div>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr class="bg-emerald-950 text-white text-xs uppercase tracking-wider font-semibold">
+                                                    <th class="py-4 px-4 text-center w-12">No</th>
+                                                    <th class="py-4 px-6 w-1/4">Unsur, Sub-Unsur & Indikator Kinerja</th>
+                                                    <th class="py-4 px-6 w-1/4">Data Yang Diharapkan</th>
+                                                    <th class="py-4 px-6 w-1/4">Bukti Fisik Dokumen (Lengkap)</th>
+                                                    <th class="py-4 px-4 text-center w-28">Skor Kinerja</th>
+                                                    <th class="py-4 px-4 text-center w-40">Aksi Bukti Dukung</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-slate-200 text-xs">
+                                                {filteredItems.map((item, idx) => (
+                                                    <tr key={item.id} class="hover:bg-slate-50/80 transition-colors">
+                                                        <td class="py-4 px-4 text-center font-bold text-slate-400">{idx + 1}</td>
+                                                        <td class="py-4 px-6">
+                                                            <div class="flex flex-wrap gap-1 mb-1.5">
+                                                                <span class="text-[10px] font-extrabold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">
+                                                                    {item.unsur.split('.')[0]}
+                                                                </span>
+                                                                <span class="text-[10px] font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
+                                                                    {item.sub}
+                                                                </span>
+                                                            </div>
+                                                            <p class="font-bold text-slate-800 leading-relaxed text-xs">{item.indikator}</p>
+                                                        </td>
+                                                        <td class="py-4 px-6 text-slate-600 leading-relaxed">{item.diharapkan}</td>
+                                                        <td class="py-4 px-6 text-slate-600 whitespace-pre-line leading-relaxed">
+                                                            {item.bukti}
+                                                            {item.dokumen && (
+                                                                <div class="mt-2 flex items-center gap-1.5 text-emerald-800 font-semibold bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200 text-[11px]">
+                                                                    <i data-lucide="file-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                                                                    <span>{item.dokumen}</span>
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                        <td class="py-4 px-4 text-center">
+                                                            <select
+                                                                value={item.skor}
+                                                                onChange={(e) => handleScoreChange(item.id, e.target.value)}
+                                                                class="bg-amber-50 border border-amber-300 font-bold text-amber-900 rounded-lg text-xs px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                                            >
+                                                                <option value="4">4 (Amat Baik)</option>
+                                                                <option value="3">3 (Baik)</option>
+                                                                <option value="2">2 (Cukup)</option>
+                                                                <option value="1">1 (Kurang)</option>
+                                                            </select>
+                                                        </td>
+                                                        <td class="py-4 px-4 text-center">
+                                                            <div class="space-y-1.5">
+                                                                <a 
+                                                                    href={item.driveLink || DRIVE_FOLDER_URL}
+                                                                    target="_blank"
+                                                                    rel="noreferrer"
+                                                                    class="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1.5 rounded-lg text-[10px] shadow border border-emerald-700 transition-all w-full justify-center"
+                                                                >
+                                                                    <i data-lucide="external-link" class="w-3 h-3 text-amber-300"></i> Buka Berkas Drive
+                                                                </a>
+                                                                <button 
+                                                                    onClick={() => { setSelectedItemForUpload(item); setShowUploadModal(true); }}
+                                                                    class="text-[10px] text-slate-500 hover:text-emerald-700 underline block w-full text-center"
+                                                                >
+                                                                    Ganti File / Link
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* LAPORAN TAB */}
+                        {activeTab === 'laporan' && (
+                            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+                                <div class="flex justify-between items-start border-b border-slate-200 pb-6">
+                                    <div>
+                                        <h2 class="text-2xl font-bold text-slate-800">Laporan Penilaian Kinerja Kepala Madrasah ({selectedYear})</h2>
+                                        <p class="text-xs text-slate-500 mt-1">MTs Al Fatah Talun • Kepala Madrasah: Imam Mahmudi, M.Pd</p>
+                                    </div>
+                                    <button onClick={() => window.print()} class="bg-emerald-800 hover:bg-emerald-900 text-white font-semibold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-md">
+                                        <i data-lucide="printer" class="w-4 h-4 text-amber-400"></i> Cetak Laporan Tahun {selectedYear}
+                                    </button>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div class="p-6 rounded-2xl bg-gradient-to-br from-emerald-950 to-teal-900 text-white text-center flex flex-col justify-center">
+                                        <p class="text-xs uppercase text-emerald-200 font-semibold tracking-wider">Nilai Akhir Kinerja Tahun {selectedYear}</p>
+                                        <h3 class="text-5xl font-extrabold text-amber-400 mt-2">{stats.avgScore}</h3>
+                                        <p class="text-xs text-emerald-100 mt-2 font-medium">Predikat: <b>SANGAT BAIK (A)</b></p>
+                                    </div>
+                                    <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 col-span-2 space-y-3 text-xs">
+                                        <h4 class="font-bold text-slate-800 text-sm">Penyimpanan & Sinkronisasi Drive Resmi:</h4>
+                                        <div class="p-4 bg-white rounded-xl border border-slate-200 space-y-2.5">
+                                            <p class="font-semibold text-slate-700 flex items-center justify-between">
+                                                <span>Folder Utama Drive PKKM:</span>
+                                                <a href={DRIVE_FOLDER_URL} target="_blank" rel="noreferrer" class="font-mono text-emerald-700 underline inline-flex items-center gap-1 font-bold">
+                                                    Buka Google Drive <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                                </a>
+                                            </p>
+                                            <p class="text-slate-600">Status Kelengkapan: <b>{stats.verified} dari {stats.total} Dokumen Terverifikasi ({Math.round((stats.verified/stats.total)*100)}%)</b></p>
+                                            <div class="w-full bg-slate-200 rounded-full h-2">
+                                                <div class="bg-emerald-600 h-2 rounded-full" style={{ width: `${(stats.verified/stats.total)*100}%` }}></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-6 border-t border-slate-200 pt-6">
+                                    <h3 class="font-bold text-slate-800 text-sm mb-4">Ringkasan Skor Per Komponen Kinerja</h3>
+                                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                                        {['A', 'B', 'C', 'D', 'E'].map(komp => {
+                                            const matchItems = currentItems.filter(i => i.unsur.startsWith(komp));
+                                            const count = matchItems.length;
+                                            const score = count > 0 ? (matchItems.reduce((acc, i) => acc + i.skor, 0) / count).toFixed(2) : '0.00';
+                                            return (
+                                                <div key={komp} class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                                                    <span class="text-xs font-bold text-slate-500 uppercase">Komponen {komp}</span>
+                                                    <p class="text-xl font-extrabold text-emerald-800 mt-1">{score}</p>
+                                                    <span class="text-[10px] text-slate-400">{count} Indikator</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+
+                    {/* UPLOAD MODAL SINKRONISASI DRIVE */}
+                    {showUploadModal && (
+                        <div class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                            <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+                                <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                                    <div>
+                                        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                                            <i data-lucide="cloud-upload" class="w-5 h-5 text-emerald-600"></i>
+                                            Unggah / Hubungkan Bukti Dukung ({selectedYear})
+                                        </h3>
+                                        <p class="text-[11px] text-slate-400 mt-0.5">Terhubung Langsung ke Google Drive PKKM</p>
+                                    </div>
+                                    <button onClick={() => setShowUploadModal(false)} class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+                                </div>
+
+                                <div class="space-y-4 text-xs">
+                                    <div>
+                                        <label class="block font-semibold text-slate-700 mb-1">Target Indikator Penilaian</label>
+                                        <textarea
+                                            readOnly
+                                            rows="2"
+                                            value={selectedItemForUpload ? `${selectedItemForUpload.unsur.split('.')[0]} - ${selectedItemForUpload.indikator}` : `Indikator PKKM Tahun ${selectedYear}`}
+                                            class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 font-medium text-xs leading-relaxed resize-none"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label class="block font-semibold text-slate-700 mb-1">Nama Berkas Dokumen / File</label>
+                                        <input 
+                                            id="inputFileName"
+                                            type="text" 
+                                            placeholder={`Bukti_Fisik_PKKM_${selectedYear}_MTs_AlFatah.pdf`} 
+                                            class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500" 
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label class="block font-semibold text-slate-700 mb-1">Link File / Folder Google Drive Spesifik</label>
+                                        <input 
+                                            id="inputCustomLink"
+                                            type="text" 
+                                            defaultValue={selectedItemForUpload ? selectedItemForUpload.driveLink : DRIVE_FOLDER_URL}
+                                            class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 font-mono text-[11px]" 
+                                        />
+                                        <p class="text-[10px] text-slate-400 mt-1">Anda dapat menyesuaikan atau mengubah tautan folder Drive untuk indikator ini secara manual.</p>
+                                    </div>
+
+                                    <div>
+                                        <label class="block font-semibold text-slate-700 mb-1">Unggah Langsung Ke Folder Google Drive</label>
+                                        <a 
+                                            href={selectedItemForUpload && selectedItemForUpload.driveLink ? selectedItemForUpload.driveLink : DRIVE_FOLDER_URL} 
+                                            target="_blank" 
+                                            rel="noreferrer"
+                                            class="border-2 border-dashed border-emerald-300 bg-emerald-50/50 rounded-2xl p-5 text-center cursor-pointer hover:bg-emerald-50 transition-all block"
+                                        >
+                                            <i data-lucide="folder-plus" class="w-7 h-7 text-emerald-600 mx-auto mb-1"></i>
+                                            <p class="font-bold text-emerald-900">Buka Folder Google Drive untuk Upload Berkas</p>
+                                            <p class="text-[10px] text-emerald-700 mt-0.5">Klik di sini untuk mengunggah file langsung ke folder Drive resmi</p>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-end gap-3 pt-3 border-t border-slate-100">
+                                    <button onClick={() => setShowUploadModal(false)} class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50">
+                                        Batal
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            const valName = document.getElementById('inputFileName').value;
+                                            const valLink = document.getElementById('inputCustomLink').value;
+                                            handleSaveFileUpload(valName, valLink);
+                                        }} 
+                                        class="px-5 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold shadow-md flex items-center gap-1.5"
+                                    >
+                                        <i data-lucide="save" class="w-3.5 h-3.5 text-amber-400"></i> Simpan Dokumen
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Footer */}
+                    <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800">
+                        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+                            <p>© Aplikasi Multi-Tahun (2025–2028) <b>SI-PKKM MTs Al Fatah Talun</b> • Integrasi Link Drive Berkas Dukung Presisi</p>
+                            <p class="text-slate-500">
+                                Kepala Madrasah: <b>Imam Mahmudi, M.Pd</b> • Folder Drive Utama: 
+                                <a href={DRIVE_FOLDER_URL} target="_blank" rel="noreferrer" class="text-emerald-400 hover:underline ml-1">
+                                    Link Drive Terhubung
+                                </a>
+                            </p>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
